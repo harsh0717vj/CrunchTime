@@ -1977,6 +1977,37 @@ Respond with exactly this structure:
 Available actions: ADD_TASK, COMPLETE_TASK, DELETE_TASK, SUGGEST_FOCUS, BREAKDOWN_TASK, SHOW_TASKS, PRODUCTIVITY_REPORT, CHAT
 `;
 
+ async function fetchGeminiAIHelp(prompt, task = null) {
+  const tasksSummary = tasks.map(t => ({
+    id: t.id,
+    name: t.name,
+    priority: t.priority,
+    deadline: t.deadline,
+    completed: t.completed,
+    description: t.description || ""
+  }));
+
+  const now = new Date();
+  const systemPrompt = `
+You are CrunchTime AI — an agentic task management assistant.
+Current date and time: ${now.toISOString()}
+
+The user has these tasks currently:
+${JSON.stringify(tasksSummary, null, 2)}
+
+You must analyze the user message and return a JSON response.
+Return ONLY valid JSON. No markdown. No explanation. No code blocks.
+
+Respond with exactly this structure:
+{
+  "action": "ACTION_NAME",
+  "data": {},
+  "message": "Friendly confirmation message to show user"
+}
+
+Available actions: ADD_TASK, COMPLETE_TASK, DELETE_TASK, SUGGEST_FOCUS, BREAKDOWN_TASK, SHOW_TASKS, PRODUCTIVITY_REPORT, CHAT
+`;
+
   try {
     // 1. Properly define finalPrompt so it doesn't throw a ReferenceError
     let finalPrompt = prompt;
