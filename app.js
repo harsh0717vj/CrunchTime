@@ -10,7 +10,7 @@ export const firebaseConfig = {
   appId: "1:220460702653:web:a6193a97e389999b6a50d4"
 };
 
-export const GEMINI_API_KEY = "AQ.Ab8RN6LKNJOWxp6xVxC5sHOVaEAaHQoJs12C9qIXCWJqP8b1Qg"; // 🔑 Paste your real Gemini key string here
+export const GEMINI_API_KEY = "AQ.Ab8RN6KchYUFU-77ebneOnZFsrdGYZYKWZJ-ouLkHJlAYhCisw"; // 🔑 Paste your real Gemini key string here
 
 // ==========================================
 // CORE PLATFORM INITIALIZATION
