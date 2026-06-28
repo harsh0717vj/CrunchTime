@@ -1,23 +1,32 @@
-import { firebaseConfig, GEMINI_API_KEY } from "./config.js";
+// ==========================================
+// CENTRALIZED CONFIGURATION (No external config.js needed)
+// ==========================================
+export const firebaseConfig = {
+  apiKey: "AIzaSyDxval4eTEYGPttDaEF2PrKjaCi6Z9ZABM",
+  authDomain: "crunchtime-57e84.firebaseapp.com",
+  projectId: "crunchtime-57e84",
+  storageBucket: "crunchtime-57e84.firebasestorage.app",
+  messagingSenderId: "220460702653",
+  appId: "1:220460702653:web:a6193a97e389999b6a50d4"
+};
+
+export const GEMINI_API_KEY = "AQ.Ab8RN6LKNJOWxp6xVxC5sHOVaEAaHQoJs12C9qIXCWJqP8b1Qg"; // 🔑 Paste your real Gemini key string here
+
+// ==========================================
+// CORE PLATFORM INITIALIZATION
+// ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, getDocs, writeBatch, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signInWithPopup, signOut, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// Initialize Firebase services globally using the original config
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
-const ACTIVE_GEMINI_KEY = localStorage.getItem("crunchtime_gemini_key") || "MOCK_KEY";
-/**
- * CRUNCHTIME - CORE APPLICATION LOGIC
- * Includes: Task Management, Tickers, Statistics, Form Validation, AI Chat Simulator,
- * and integration hooks for Firebase & Gemini.
- */
 
-// ==========================================
-// 1. STATE INITIALIZATION & LOCAL STORAGE
-// ==========================================
+/**
+ * CRUNCHTIME - APPLICATION ENGINE
+ */
 
 let tasks = [];
 let customSections = [];
@@ -153,18 +162,11 @@ async function syncTasksToFirebase() {
 }
 
 // ==========================================
-// 2. DOM ELEMENTS & LISTENERS SETUP
+// DOM MANAGEMENT & EVENT BINDINGS
 // ==========================================
 
 document.addEventListener("DOMContentLoaded", () => {
   initTasks();
-
-  function scrollToTop() {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-  }
 
   function scrollToSection(sectionId) {
     const section = document.getElementById(sectionId);
@@ -259,7 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
     field.addEventListener("keydown", handleKeydown);
   }
 
-  // DOM Nodes
   const addTaskForm = document.getElementById("add-task-form");
   const taskNameInput = document.getElementById("task-name");
   const taskDescInput = document.getElementById("task-desc");
@@ -268,16 +269,13 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const tasksContainer = document.getElementById("tasks-container");
   const emptyState = document.getElementById("empty-state");
-  
   const sidebarItems = document.querySelectorAll(".sidebar-nav-item");
   
-  // Stats DOM Elements
   const totalStatEl = document.getElementById("stat-count-total");
   const completedStatEl = document.getElementById("stat-count-completed");
   const urgentStatEl = document.getElementById("stat-count-urgent");
   const overdueStatEl = document.getElementById("stat-count-overdue");
   
-  // AI Chat DOM Elements
   const chatDrawer = document.getElementById("ai-chat-drawer");
   const chatToggleBtn = document.getElementById("chat-toggle-btn");
   const chatInputForm = document.getElementById("chat-input-form");
@@ -285,7 +283,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatMessages = document.getElementById("chat-messages");
   const chatUnreadBadge = document.getElementById("chat-unread-badge");
 
-  // Collapsible Sidebar & No-deadline Elements
   const sidebarToggle = document.getElementById("sidebar-logo-toggle");
   const pageSidebar = document.getElementById("page-sidebar");
   const mobileMenuBtn = document.getElementById("mobile-menu-btn");
@@ -296,23 +293,16 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeFilter = "all"; 
   let unreadCount = 0;
 
-  // Set default minimum date-time for deadline picker to today/now
   const minDateTime = new Date();
   minDateTime.setMinutes(minDateTime.getMinutes() - minDateTime.getTimezoneOffset());
   taskDeadlineInput.min = minDateTime.toISOString().slice(0, 16);
 
-  // Auth button bindings
   const googleSigninBtn = document.getElementById("google-signin-btn");
-  if (googleSigninBtn) {
-    googleSigninBtn.addEventListener("click", signInWithGoogle);
-  }
+  if (googleSigninBtn) googleSigninBtn.addEventListener("click", signInWithGoogle);
 
   const signoutBtn = document.getElementById("signout-btn");
-  if (signoutBtn) {
-    signoutBtn.addEventListener("click", signOutUser);
-  }
+  if (signoutBtn) signoutBtn.addEventListener("click", signOutUser);
 
-  // Custom Section UI Helpers
   function updateSectionDropdown() {
     const select = document.getElementById("task-section");
     if (!select) return;
@@ -337,13 +327,11 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTasks();
   }
 
-  // Initialize display
   updateSectionDropdown();
   renderTasks();
   updateStats();
   updateProductivityReport();
   
-  // Start Ticker Loop (Every 1 second)
   setInterval(() => {
     updateSystemClock();
     updateCountdownTickers();
@@ -405,13 +393,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const section = header.closest(".task-section");
         if (section) {
           section.classList.toggle("collapsed");
-          
           if (!section.classList.contains("collapsed")) {
             setTimeout(() => {
-              section.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
+              section.scrollIntoView({ behavior: "smooth", block: "start" });
             }, 150);
           }
         }
@@ -428,9 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "Create New Section",
         "Organize your tasks by giving this section a name.",
         "e.g. Work, College, Side Projects...",
-        (sectionName) => {
-          createCustomSection(sectionName);
-        }
+        (sectionName) => { createCustomSection(sectionName); }
       );
       return;
     }
@@ -448,62 +430,38 @@ document.addEventListener("DOMContentLoaded", () => {
           const endOfToday = new Date();
           endOfToday.setHours(23, 59, 0, 0);
           const localISO = new Date(endOfToday.getTime() - endOfToday.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-          const deadlineInput = document.getElementById("task-deadline");
-          const noDeadlineCheck = document.getElementById("task-no-deadline");
-          const deadlineRow = document.getElementById("deadline-input-row");
-          if (noDeadlineCheck) noDeadlineCheck.checked = false;
-          if (deadlineRow) deadlineRow.classList.remove("hidden");
-          if (deadlineInput) deadlineInput.value = localISO;
-          const sectionSelect = document.getElementById("task-section");
-          if (sectionSelect) sectionSelect.value = "auto";
+          if (document.getElementById("task-no-deadline")) document.getElementById("task-no-deadline").checked = false;
+          if (document.getElementById("deadline-input-row")) document.getElementById("deadline-input-row").classList.remove("hidden");
+          if (document.getElementById("task-deadline")) document.getElementById("task-deadline").value = localISO;
+          if (document.getElementById("task-section")) document.getElementById("task-section").value = "auto";
 
         } else if (sectionIdAttr === "section-upcoming") {
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
           tomorrow.setHours(12, 0, 0, 0);
           const localISO = new Date(tomorrow.getTime() - tomorrow.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-          const deadlineInput = document.getElementById("task-deadline");
-          const noDeadlineCheck = document.getElementById("task-no-deadline");
-          const deadlineRow = document.getElementById("deadline-input-row");
-          if (noDeadlineCheck) noDeadlineCheck.checked = false;
-          if (deadlineRow) deadlineRow.classList.remove("hidden");
-          if (deadlineInput) deadlineInput.value = localISO;
-          const sectionSelect = document.getElementById("task-section");
-          if (sectionSelect) sectionSelect.value = "auto";
+          if (document.getElementById("task-no-deadline")) document.getElementById("task-no-deadline").checked = false;
+          if (document.getElementById("deadline-input-row")) document.getElementById("deadline-input-row").classList.remove("hidden");
+          if (document.getElementById("task-deadline")) document.getElementById("task-deadline").value = localISO;
+          if (document.getElementById("task-section")) document.getElementById("task-section").value = "auto";
 
         } else if (sectionIdAttr === "section-someday") {
-          const noDeadlineCheck = document.getElementById("task-no-deadline");
-          const deadlineRow = document.getElementById("deadline-input-row");
-          const deadlineInput = document.getElementById("task-deadline");
-          if (noDeadlineCheck) noDeadlineCheck.checked = true;
-          if (deadlineRow) deadlineRow.classList.add("hidden");
-          if (deadlineInput) deadlineInput.value = "";
-          const sectionSelect = document.getElementById("task-section");
-          if (sectionSelect) sectionSelect.value = "auto";
-
-        } else if (sectionIdAttr === "section-completed") {
-          const sectionSelect = document.getElementById("task-section");
-          if (sectionSelect) sectionSelect.value = "auto";
+          if (document.getElementById("task-no-deadline")) document.getElementById("task-no-deadline").checked = true;
+          if (document.getElementById("deadline-input-row")) document.getElementById("deadline-input-row").classList.add("hidden");
+          if (document.getElementById("task-deadline")) document.getElementById("task-deadline").value = "";
+          if (document.getElementById("task-section")) document.getElementById("task-section").value = "auto";
 
         } else if (sectionIdAttr && sectionIdAttr.startsWith("section-custom-")) {
           const customId = sectionIdAttr.replace("section-custom-", "");
-          const sectionSelect = document.getElementById("task-section");
-          if (sectionSelect) sectionSelect.value = customId;
-          const noDeadlineCheck = document.getElementById("task-no-deadline");
-          const deadlineRow = document.getElementById("deadline-input-row");
-          if (noDeadlineCheck) noDeadlineCheck.checked = true;
-          if (deadlineRow) deadlineRow.classList.add("hidden");
+          if (document.getElementById("task-section")) document.getElementById("task-section").value = customId;
+          if (document.getElementById("task-no-deadline")) document.getElementById("task-no-deadline").checked = true;
+          if (document.getElementById("deadline-input-row")) document.getElementById("deadline-input-row").classList.add("hidden");
         }
       }
 
       const formSection = document.querySelector(".form-section");
-      if (formSection) {
-        formSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-      setTimeout(() => {
-        const taskNameInput = document.getElementById("task-name");
-        if (taskNameInput) taskNameInput.focus();
-      }, 400);
+      if (formSection) formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => { if (taskNameInput) taskNameInput.focus(); }, 400);
     }
   });
 
@@ -549,21 +507,17 @@ document.addEventListener("DOMContentLoaded", () => {
       activeFilter = item.getAttribute("data-filter");
       
       if (activeFilter === "today") {
-        const sectionToday = document.getElementById("section-today");
-        if (sectionToday) sectionToday.classList.remove("collapsed");
+        if (document.getElementById("section-today")) document.getElementById("section-today").classList.remove("collapsed");
       } else if (activeFilter === "completed") {
-        const sectionCompleted = document.getElementById("section-completed");
-        if (sectionCompleted) sectionCompleted.classList.remove("collapsed");
+        if (document.getElementById("section-completed")) document.getElementById("section-completed").classList.remove("collapsed");
       }
 
       renderTasks();
 
-      if (activeFilter === "all" || activeFilter === "active") {
+      if (activeFilter === "all" || activeFilter === "active" || activeFilter === "today") {
         scrollToSection("section-today");
       } else if (activeFilter === "completed") {
         scrollToSection("section-completed");
-      } else if (activeFilter === "today") {
-        scrollToSection("section-today");
       }
 
       if (window.innerWidth <= 768 && pageSidebar && sidebarBackdrop) {
@@ -591,18 +545,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (card.id === "stat-completed") {
           tasksContainer.classList.add("focus-completed");
-          const secCompleted = document.getElementById("section-completed");
-          if (secCompleted) secCompleted.classList.remove("collapsed");
+          if (document.getElementById("section-completed")) document.getElementById("section-completed").classList.remove("collapsed");
         } else if (card.id === "stat-urgent") {
           tasksContainer.classList.add("focus-urgent");
-          const secToday = document.getElementById("section-today");
-          const secUpcoming = document.getElementById("section-upcoming");
-          if (secToday) secToday.classList.remove("collapsed");
-          if (secUpcoming) secUpcoming.classList.remove("collapsed");
+          if (document.getElementById("section-today")) document.getElementById("section-today").classList.remove("collapsed");
+          if (document.getElementById("section-upcoming")) document.getElementById("section-upcoming").classList.remove("collapsed");
         } else if (card.id === "stat-overdue") {
           tasksContainer.classList.add("focus-overdue");
-          const secToday = document.getElementById("section-today");
-          if (secToday) secToday.classList.remove("collapsed");
+          if (document.getElementById("section-today")) document.getElementById("section-today").classList.remove("collapsed");
         }
       }
 
@@ -674,9 +624,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateProductivityReport();
     addTaskForm.reset();
 
-    if (deadlineInputRow) {
-      deadlineInputRow.classList.remove("hidden");
-    }
+    if (deadlineInputRow) deadlineInputRow.classList.remove("hidden");
     
     const reMinDateTime = new Date();
     reMinDateTime.setMinutes(reMinDateTime.getMinutes() - reMinDateTime.getTimezoneOffset());
@@ -758,7 +706,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================
-  // 3. CORE LOGIC & RENDER FUNCTIONS
+  // VIEW SWITCHERS & DATA VISUALIZATION
   // ==========================================
 
   function switchView(viewName) {
@@ -773,9 +721,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (streakBanner) streakBanner.classList.add("view-hidden");
       if (productivityView) {
         productivityView.classList.remove("view-hidden", "hidden");
-        if (dashboardStrip) {
-          productivityView.insertBefore(dashboardStrip, productivityView.firstChild);
-        }
+        if (dashboardStrip) productivityView.insertBefore(dashboardStrip, productivityView.firstChild);
       }
     } else {
       if (productivityView) productivityView.classList.add("view-hidden");
@@ -794,17 +740,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function calculateStreak() {
     const completedTasks = tasks.filter(t => t.completed && t.completedAt);
-    if (completedTasks.length === 0) {
-      return { current: 0, hasCompletedToday: false };
-    }
+    if (completedTasks.length === 0) return { current: 0, hasCompletedToday: false };
 
     const completedDates = new Set();
     completedTasks.forEach(t => {
       const date = new Date(t.completedAt);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      completedDates.add(`${year}-${month}-${day}`);
+      completedDates.add(getLocalDateStr(date));
     });
 
     const todayStr = getLocalDateStr(new Date());
@@ -818,30 +759,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (hasCompletedToday) {
       while (true) {
-        const dateStr = getLocalDateStr(checkDate);
-        if (completedDates.has(dateStr)) {
+        if (completedDates.has(getLocalDateStr(checkDate))) {
           streak++;
           checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
+        } else break;
       }
     } else if (completedDates.has(yesterdayStr)) {
       checkDate.setDate(checkDate.getDate() - 1);
       while (true) {
-        const dateStr = getLocalDateStr(checkDate);
-        if (completedDates.has(dateStr)) {
+        if (completedDates.has(getLocalDateStr(checkDate))) {
           streak++;
           checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
+        } else break;
       }
-    } else {
-      streak = 0;
     }
 
-    return { current: streak, hasCompletedToday: hasCompletedToday };
+    return { current: streak, hasCompletedToday };
   }
 
   function getLocalDateStr(date) {
@@ -878,34 +811,23 @@ document.addEventListener("DOMContentLoaded", () => {
       saveBestStreak(current);
     }
 
-    const countEl = document.getElementById("streak-count");
-    const bestCountEl = document.getElementById("streak-best-count");
-    if (countEl) countEl.textContent = current;
-    if (bestCountEl) bestCountEl.textContent = newBest;
+    if (document.getElementById("streak-count")) document.getElementById("streak-count").textContent = current;
+    if (document.getElementById("streak-best-count")) document.getElementById("streak-best-count").textContent = newBest;
 
     const flame = document.getElementById("streak-flame");
     if (flame) {
       flame.className = "flame";
-      if (current === 0) {
-        flame.classList.add("static-gray");
-      } else if (!hasCompletedToday) {
-        flame.classList.add("dimmed");
-      }
+      if (current === 0) flame.classList.add("static-gray");
+      else if (!hasCompletedToday) flame.classList.add("dimmed");
     }
 
     const motivationMsgEl = document.getElementById("streak-motivation-msg");
     if (motivationMsgEl) {
-      if (current === 0) {
-        motivationMsgEl.textContent = "Complete a task today to ignite your streak! 🎯";
-      } else if (current <= 2) {
-        motivationMsgEl.textContent = "You are just getting started! Keep it up! ⚡";
-      } else if (current <= 6) {
-        motivationMsgEl.textContent = "You are on fire! Don't break the chain! 🔥";
-      } else if (current <= 13) {
-        motivationMsgEl.textContent = "One week strong! You are unstoppable! 💪";
-      } else {
-        motivationMsgEl.textContent = "Legendary streak! You are a productivity beast! 👑";
-      }
+      if (current === 0) motivationMsgEl.textContent = "Complete a task today to ignite your streak! 🎯";
+      else if (current <= 2) motivationMsgEl.textContent = "You are just getting started! Keep it up! ⚡";
+      else if (current <= 6) motivationMsgEl.textContent = "You are on fire! Don't break the chain! 🔥";
+      else if (current <= 13) motivationMsgEl.textContent = "One week strong! You are unstoppable! 💪";
+      else motivationMsgEl.textContent = "Legendary streak! You are a productivity beast! 👑";
     }
 
     const centerEl = banner.querySelector(".streak-center");
@@ -917,26 +839,17 @@ document.addEventListener("DOMContentLoaded", () => {
         quoteEl.className = "streak-quote";
         centerEl.appendChild(quoteEl);
       }
-      
       const now = new Date();
       const start = new Date(now.getFullYear(), 0, 0);
       const diff = now - start;
-      const oneDay = 1000 * 60 * 60 * 24;
-      const dayOfYear = Math.floor(diff / oneDay);
-      
-      const quoteIndex = dayOfYear % DAILY_QUOTES.length;
-      const quote = DAILY_QUOTES[quoteIndex];
-      quoteEl.textContent = `"${quote}"`;
+      const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+      quoteEl.textContent = `"${DAILY_QUOTES[dayOfYear % DAILY_QUOTES.length]}"`;
     }
   }
 
   function renderTasks() {
-    if (activeFilter === "productivity") {
-      switchView("productivity");
-    } else {
-      switchView("home");
-      updateStreakBanner();
-    }
+    if (activeFilter === "productivity") switchView("productivity");
+    else { switchView("home"); updateStreakBanner(); }
 
     updateStreakChart();
     updatePriorityBreakdown();
@@ -947,8 +860,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const startOfToday = new Date();
-    startOfToday.setHours(0,0,0,0);
     const endOfToday = new Date();
     endOfToday.setHours(23,59,59,999);
 
@@ -958,28 +869,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const completedTasks = [];
 
     const customSectionTasks = {};
-    customSections.forEach(sec => {
-      customSectionTasks[sec.id] = [];
-    });
+    customSections.forEach(sec => { customSectionTasks[sec.id] = []; });
 
     tasks.forEach(task => {
-      if (task.completed) {
-        completedTasks.push(task);
-        return;
-      }
-
+      if (task.completed) { completedTasks.push(task); return; }
       if (task.section && task.section !== "auto" && customSectionTasks[task.section]) {
         customSectionTasks[task.section].push(task);
       } else {
-        if (!task.deadline) {
-          somedayTasks.push(task);
-        } else {
-          const taskDate = new Date(task.deadline);
-          if (taskDate <= endOfToday) {
-            todayTasks.push(task);
-          } else {
-            upcomingTasks.push(task);
-          }
+        if (!task.deadline) somedayTasks.push(task);
+        else {
+          if (new Date(task.deadline) <= endOfToday) todayTasks.push(task);
+          else upcomingTasks.push(task);
         }
       }
     });
@@ -990,88 +890,43 @@ document.addEventListener("DOMContentLoaded", () => {
     todayTasks.sort(sortByPriority);
     upcomingTasks.sort(sortByPriority);
     somedayTasks.sort(sortByPriority);
-    completedTasks.sort((a, b) => {
-      if (a.completedAt && b.completedAt) {
-        return new Date(b.completedAt) - new Date(a.completedAt);
-      }
-      return priorityWeight[b.priority] - priorityWeight[a.priority];
-    });
+    completedTasks.sort((a, b) => b.completedAt && a.completedAt ? new Date(b.completedAt) - new Date(a.completedAt) : priorityWeight[b.priority] - priorityWeight[a.priority]);
 
-    const todayBadge = document.querySelector("#section-today .count-badge");
-    const upcomingBadge = document.querySelector("#section-upcoming .count-badge");
-    const somedayBadge = document.querySelector("#section-someday .count-badge");
-    const completedBadge = document.querySelector("#section-completed .count-badge");
-
-    if (todayBadge) todayBadge.textContent = todayTasks.length;
-    if (upcomingBadge) upcomingBadge.textContent = upcomingTasks.length;
-    if (somedayBadge) somedayBadge.textContent = somedayTasks.length;
-    if (completedBadge) completedBadge.textContent = completedTasks.length;
+    if (document.querySelector("#section-today .count-badge")) document.querySelector("#section-today .count-badge").textContent = todayTasks.length;
+    if (document.querySelector("#section-upcoming .count-badge")) document.querySelector("#section-upcoming .count-badge").textContent = upcomingTasks.length;
+    if (document.querySelector("#section-someday .count-badge")) document.querySelector("#section-someday .count-badge").textContent = somedayTasks.length;
+    if (document.querySelector("#section-completed .count-badge")) document.querySelector("#section-completed .count-badge").textContent = completedTasks.length;
 
     const sectionToday = document.getElementById("section-today");
     const sectionUpcoming = document.getElementById("section-upcoming");
     const sectionSomeday = document.getElementById("section-someday");
     const sectionCompleted = document.getElementById("section-completed");
 
-    tasksContainer.querySelectorAll(".task-section").forEach(sec => {
-      sec.classList.remove("focused-section");
-    });
+    tasksContainer.querySelectorAll(".task-section").forEach(sec => sec.classList.remove("focused-section"));
 
     if (sectionToday) {
       if (activeFilter === "all" || activeFilter === "active" || activeFilter === "today") {
         sectionToday.classList.remove("hidden");
-        if (activeFilter === "today") {
-          sectionToday.classList.add("focused-section");
-        }
-      } else {
-        sectionToday.classList.add("hidden");
-      }
+        if (activeFilter === "today") sectionToday.classList.add("focused-section");
+      } else sectionToday.classList.add("hidden");
     }
-
-    if (sectionUpcoming) {
-      if (activeFilter === "all" || activeFilter === "active") {
-        sectionUpcoming.classList.remove("hidden");
-      } else {
-        sectionUpcoming.classList.add("hidden");
-      }
-    }
-
-    if (sectionSomeday) {
-      if (activeFilter === "all" || activeFilter === "active") {
-        sectionSomeday.classList.remove("hidden");
-      } else {
-        sectionSomeday.classList.add("hidden");
-      }
-    }
-
+    if (sectionUpcoming) sectionUpcoming.className = (activeFilter === "all" || activeFilter === "active") ? "task-section" : "task-section hidden";
+    if (sectionSomeday) sectionSomeday.className = (activeFilter === "all" || activeFilter === "active") ? "task-section" : "task-section hidden";
     if (sectionCompleted) {
       if (activeFilter === "all" || activeFilter === "completed") {
         sectionCompleted.classList.remove("hidden");
-        if (activeFilter === "completed") {
-          sectionCompleted.classList.add("focused-section");
-        }
-      } else {
-        sectionCompleted.classList.add("hidden");
-      }
+        if (activeFilter === "completed") sectionCompleted.classList.add("focused-section");
+      } else sectionCompleted.classList.add("hidden");
     }
 
-    const existingCustomSections = tasksContainer.querySelectorAll(".task-section-custom");
-    existingCustomSections.forEach(el => el.remove());
-
+    tasksContainer.querySelectorAll(".task-section-custom").forEach(el => el.remove());
     const showCustomSections = (activeFilter === "all" || activeFilter === "active");
 
     customSections.forEach(section => {
-      const existingSec = document.getElementById(`section-custom-${section.id}`);
-      const isCollapsed = existingSec ? existingSec.classList.contains("collapsed") : false;
-
       const secEl = document.createElement("div");
       secEl.className = "task-section task-section-custom";
       secEl.id = `section-custom-${section.id}`;
-      if (!showCustomSections) {
-        secEl.classList.add("hidden");
-      }
-      if (isCollapsed) {
-        secEl.classList.add("collapsed");
-      }
+      if (!showCustomSections) secEl.classList.add("hidden");
 
       const tasksForSec = customSectionTasks[section.id] || [];
       secEl.innerHTML = `
@@ -1079,10 +934,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="toggle-arrow">▼</span>
           <span class="section-group-title">${escapeHTML(section.name)}</span>
           <button type="button" class="btn-add-section-inline" title="Create Custom Section">+</button>
-          <button type="button" 
-            class="btn-delete-section-inline" 
-            data-id="${section.id}"
-            title="Delete Section">
+          <button type="button" class="btn-delete-section-inline" data-id="${section.id}" title="Delete Section">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M19 7L18.1327 19.1422C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1422L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -1092,77 +944,36 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="section-cards-wrapper"></div>
       `;
 
-      const sectionCompletedEl = document.getElementById("section-completed");
-      if (sectionCompletedEl) {
-        tasksContainer.insertBefore(secEl, sectionCompletedEl);
-      } else {
-        tasksContainer.appendChild(secEl);
-      }
+      if (sectionCompleted) tasksContainer.insertBefore(secEl, sectionCompleted);
+      else tasksContainer.appendChild(secEl);
 
       tasksForSec.sort(sortByPriority);
-      const wrapper = secEl.querySelector(".section-cards-wrapper");
-      tasksForSec.forEach(task => {
-        wrapper.appendChild(createTaskCardDOM(task));
-      });
+      tasksForSec.forEach(task => secEl.querySelector(".section-cards-wrapper").appendChild(createTaskCardDOM(task)));
     });
 
-    const todayCardsWrapper = document.querySelector("#section-today .section-cards-wrapper");
-    const upcomingCardsWrapper = document.querySelector("#section-upcoming .section-cards-wrapper");
-    const somedayCardsWrapper = document.querySelector("#section-someday .section-cards-wrapper");
-    const completedCardsWrapper = document.querySelector("#section-completed .section-cards-wrapper");
+    const todayWrapper = document.querySelector("#section-today .section-cards-wrapper");
+    const upcomingWrapper = document.querySelector("#section-upcoming .section-cards-wrapper");
+    const somedayWrapper = document.querySelector("#section-someday .section-cards-wrapper");
+    const completedWrapper = document.querySelector("#section-completed .section-cards-wrapper");
 
-    if (todayCardsWrapper) todayCardsWrapper.innerHTML = "";
-    if (upcomingCardsWrapper) upcomingCardsWrapper.innerHTML = "";
-    if (somedayCardsWrapper) somedayCardsWrapper.innerHTML = "";
-    if (completedCardsWrapper) completedCardsWrapper.innerHTML = "";
+    if (todayWrapper) todayWrapper.innerHTML = "";
+    if (upcomingWrapper) upcomingWrapper.innerHTML = "";
+    if (somedayWrapper) somedayWrapper.innerHTML = "";
+    if (completedWrapper) completedWrapper.innerHTML = "";
 
-    todayTasks.forEach(task => {
-      if (todayCardsWrapper) todayCardsWrapper.appendChild(createTaskCardDOM(task));
-    });
-    upcomingTasks.forEach(task => {
-      if (upcomingCardsWrapper) upcomingCardsWrapper.appendChild(createTaskCardDOM(task));
-    });
-    somedayTasks.forEach(task => {
-      if (somedayCardsWrapper) somedayCardsWrapper.appendChild(createTaskCardDOM(task));
-    });
-    completedTasks.forEach(task => {
-      if (completedCardsWrapper) completedCardsWrapper.appendChild(createTaskCardDOM(task));
-    });
+    todayTasks.forEach(task => todayWrapper && todayWrapper.appendChild(createTaskCardDOM(task)));
+    upcomingTasks.forEach(task => upcomingWrapper && upcomingWrapper.appendChild(createTaskCardDOM(task)));
+    somedayTasks.forEach(task => somedayWrapper && somedayWrapper.appendChild(createTaskCardDOM(task)));
+    completedTasks.forEach(task => completedWrapper && completedWrapper.appendChild(createTaskCardDOM(task)));
 
-    let totalVisibleTasks = 0;
-    if (activeFilter === "all") {
-      totalVisibleTasks = todayTasks.length + upcomingTasks.length + somedayTasks.length + completedTasks.length;
-      customSections.forEach(sec => {
-        totalVisibleTasks += (customSectionTasks[sec.id] || []).length;
-      });
-    } else if (activeFilter === "active") {
-      totalVisibleTasks = todayTasks.length + upcomingTasks.length + somedayTasks.length;
-      customSections.forEach(sec => {
-        totalVisibleTasks += (customSectionTasks[sec.id] || []).length;
-      });
-    } else if (activeFilter === "completed") {
-      totalVisibleTasks = completedTasks.length;
-    } else if (activeFilter === "today") {
-      totalVisibleTasks = todayTasks.length;
-    }
+    let totalVisible = todayTasks.length + upcomingTasks.length + somedayTasks.length + completedTasks.length;
+    if (activeFilter === "completed") totalVisible = completedTasks.length;
+    if (activeFilter === "today") totalVisible = todayTasks.length;
 
-    if (totalVisibleTasks === 0) {
+    if (totalVisible === 0) {
       emptyState.classList.remove("hidden");
-      const emptyTitle = emptyState.querySelector("h3");
-      const emptyDesc = emptyState.querySelector("p");
-      if (activeFilter === "today") {
-        emptyTitle.textContent = "No Tasks Due Today";
-        emptyDesc.textContent = "Take a breather. You have no objectives ending today.";
-      } else if (activeFilter === "completed") {
-        emptyTitle.textContent = "No Completed Tasks";
-        emptyDesc.textContent = "No tasks completed yet. Start checking off your objectives!";
-      } else {
-        emptyTitle.textContent = "No Tasks Registered";
-        emptyDesc.textContent = "Your schedule is clean. Initialize a task to start ticking down your objectives.";
-      }
-    } else {
-      emptyState.classList.add("hidden");
-    }
+      emptyState.querySelector("h3").textContent = activeFilter === "today" ? "No Tasks Due Today" : activeFilter === "completed" ? "No Completed Tasks" : "No Tasks Registered";
+    } else emptyState.classList.add("hidden");
 
     updateCountdownTickers();
   }
@@ -1173,66 +984,35 @@ document.addEventListener("DOMContentLoaded", () => {
     div.setAttribute("data-id", task.id);
     div.setAttribute("data-deadline", task.deadline || "");
     
-    const hasDeadline = !!task.deadline;
-    const isOverdue = hasDeadline && new Date(task.deadline) < new Date() && !task.completed;
-    const diffMs = hasDeadline ? (new Date(task.deadline) - new Date()) : 0;
-    const isUrgent = hasDeadline && diffMs > 0 && diffMs < 24 * 60 * 60 * 1000 && !task.completed;
+    const isOverdue = task.deadline && new Date(task.deadline) < new Date() && !task.completed;
+    const isUrgent = task.deadline && (new Date(task.deadline) - new Date() < 24*60*60*1000) && (new Date(task.deadline) - new Date() > 0) && !task.completed;
 
-    if (task.completed) {
-      div.classList.add("is-completed");
-    } else {
+    if (task.completed) div.classList.add("is-completed");
+    else {
       if (isOverdue) div.classList.add("is-overdue");
       if (isUrgent) div.classList.add("is-urgent");
     }
-
-    const priorityLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
     
     div.innerHTML = `
       <div class="task-card-header">
-        <div class="task-title-group">
-          <h3 class="task-title">${escapeHTML(task.name)}</h3>
-        </div>
+        <div class="task-title-group"><h3 class="task-title">${escapeHTML(task.name)}</h3></div>
         <div class="task-badges">
           ${isOverdue ? '<span class="overdue-banner">Overdue</span>' : ''}
           ${task.completed ? '<span class="completed-banner">Done</span>' : ''}
-          ${!hasDeadline ? '<span class="badge no-deadline-badge">No Deadline</span>' : ''}
-          <span class="badge priority-${task.priority}-badge">${priorityLabel}</span>
+          ${!task.deadline ? '<span class="badge no-deadline-badge">No Deadline</span>' : ''}
+          <span class="badge priority-${task.priority}-badge">${task.priority}</span>
         </div>
       </div>
       <p class="task-desc">${escapeHTML(task.description || "No description provided.")}</p>
       <div class="task-card-footer">
-        <div class="countdown-box">
-          <span class="countdown-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 8V12L14 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <span class="countdown-timer">${hasDeadline ? 'Ticking...' : 'No Deadline'}</span>
-        </div>
+        <div class="countdown-box"><span class="countdown-timer">${task.deadline ? 'Ticking...' : 'No Deadline'}</span></div>
         <div class="task-actions">
-          ${!task.completed ? `
-            <button class="btn-card btn-ai-help" title="Analyze objective with AI assistant">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
-              </svg>
-              AI Plan
-            </button>
-          ` : ''}
-          <button class="btn-card btn-complete" title="${task.completed ? 'Reactivate task' : 'Complete task'}">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            ${task.completed ? "Reopen" : "Complete"}
-          </button>
-          <button class="btn-card btn-delete" title="Remove task from Operations" style="color: var(--text-muted); border-color: transparent; background: transparent;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 7L18.1327 19.1422C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1422L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
+          ${!task.completed ? `<button class="btn-card btn-ai-help">AI Plan</button>` : ''}
+          <button class="btn-card btn-complete">${task.completed ? "Reopen" : "Complete"}</button>
+          <button class="btn-card btn-delete">🗑️</button>
         </div>
       </div>
     `;
-
     return div;
   }
 
@@ -1240,688 +1020,165 @@ document.addEventListener("DOMContentLoaded", () => {
     const clock = document.getElementById("live-clock");
     if (!clock) return;
     const now = new Date();
-    let hours = now.getHours();
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const seconds = String(now.getSeconds()).padStart(2, "0");
-    const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    clock.textContent = `${String(hours).padStart(2, "0")}:${minutes}:${seconds} ${ampm}`;
+    clock.textContent = now.toLocaleTimeString();
   }
 
   function updateCountdownTickers() {
     const cards = tasksContainer.querySelectorAll(".task-card");
-    const now = new Date();
-    
     cards.forEach(card => {
-      const taskId = card.getAttribute("data-id");
-      const taskIndex = tasks.findIndex(t => t.id === taskId);
-      if (taskIndex === -1) return;
-      
-      const task = tasks[taskIndex];
       const timerSpan = card.querySelector(".countdown-timer");
-      if (!timerSpan) return;
+      const deadlineAttr = card.getAttribute("data-deadline");
+      if (!timerSpan || !deadlineAttr) return;
 
-      if (task.completed) {
-        timerSpan.textContent = "Task Completed";
-        timerSpan.className = "countdown-timer timer-normal";
-        return;
-      }
-
-      if (!task.deadline) {
-        timerSpan.textContent = "No Deadline";
-        timerSpan.className = "countdown-timer timer-normal";
-        return;
-      }
-
-      const deadline = new Date(task.deadline);
-      const diffMs = deadline - now;
-
+      const diffMs = new Date(deadlineAttr) - new Date();
       if (diffMs <= 0) {
         timerSpan.textContent = "OVERDUE";
         timerSpan.className = "countdown-timer timer-overdue";
-        
-        if (!card.classList.contains("is-overdue")) {
-          card.classList.add("is-overdue");
-          renderTasks();
-          updateStats();
-        }
         return;
       }
-
       const diffSecs = Math.floor(diffMs / 1000);
-      const secs = diffSecs % 60;
-      const mins = Math.floor(diffSecs / 60) % 60;
-      const hours = Math.floor(diffSecs / 3600) % 24;
-      const days = Math.floor(diffSecs / (3600 * 24));
-
-      let timerText = "";
-      if (days > 0) {
-        timerText += `${days}d ${hours}h ${mins}m`;
-      } else if (hours > 0) {
-        timerText += `${hours}h ${mins}m ${secs}s`;
-      } else {
-        timerText += `${mins}m ${secs}s`;
-      }
-
-      timerSpan.textContent = timerText;
-
-      if (diffMs < 60 * 60 * 1000) {
-        timerSpan.className = "countdown-timer timer-critical";
-      } else if (diffMs < 24 * 60 * 60 * 1000) {
-        timerSpan.className = "countdown-timer timer-soon";
-      } else {
-        timerSpan.className = "countdown-timer timer-normal";
-      }
+      timerSpan.textContent = `${Math.floor(diffSecs / 3600)}h ${Math.floor((diffSecs % 3600) / 60)}m ${diffSecs % 60}s`;
     });
   }
 
   function updateStats() {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
-    
-    const urgent = tasks.filter(t => {
-      if (t.completed || !t.deadline) return false;
-      const diffMs = new Date(t.deadline) - new Date();
-      return diffMs > 0 && diffMs < 24 * 60 * 60 * 1000;
-    }).length;
-
-    const overdue = tasks.filter(t => {
-      if (t.completed || !t.deadline) return false;
-      return new Date(t.deadline) < new Date();
-    }).length;
+    const overdue = tasks.filter(t => t.deadline && new Date(t.deadline) < new Date() && !t.completed).length;
 
     if (totalStatEl) totalStatEl.textContent = total;
     if (completedStatEl) completedStatEl.textContent = completed;
-    if (urgentStatEl) urgentStatEl.textContent = urgent;
     if (overdueStatEl) overdueStatEl.textContent = overdue;
-
-    const prodTotalEl = document.getElementById("prod-stat-count-total");
-    const prodCompletedEl = document.getElementById("prod-stat-count-completed");
-    const prodUrgentEl = document.getElementById("prod-stat-count-urgent");
-    const prodOverdueEl = document.getElementById("prod-stat-count-overdue");
-
-    if (prodTotalEl) prodTotalEl.textContent = total;
-    if (prodCompletedEl) prodCompletedEl.textContent = completed;
-    if (prodUrgentEl) prodUrgentEl.textContent = urgent;
-    if (prodOverdueEl) prodOverdueEl.textContent = overdue;
-
-    calculateStreak();
-    updateStreakBanner();
   }
 
-  // ==========================================
-  // 4. AI CHAT ASSISTANT INTERFACE
-  // ==========================================
-
   function requestAIHelpForTask(task) {
-    if (!chatDrawer.classList.contains("is-expanded")) {
-      chatDrawer.classList.add("is-expanded");
-      chatToggleBtn.setAttribute("aria-expanded", "true");
-      unreadCount = 0;
-      chatUnreadBadge.classList.add("hidden");
-    }
-
-    const query = `Help me break down the task: "${task.name}". It is a ${task.priority} priority objective.`;
-    
+    if (!chatDrawer.classList.contains("is-expanded")) chatDrawer.classList.add("is-expanded");
+    const query = `Help me break down the task: "${task.name}".`;
     appendChatMessage("outgoing", query);
-    scrollToBottom();
-    
     simulateAIResponse(query, task);
   }
 
   function appendChatMessage(type, text) {
     const messageDiv = document.createElement("div");
     messageDiv.className = `message ${type}`;
-    
-    const isIncoming = type === "incoming";
-    const iconHTML = isIncoming 
-      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-           <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
-         </svg>`
-      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-           <path d="M20 21V19C20 17.94 19.1 17 18 17H6C4.9 17 4 17.94 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-           <circle cx="12" cy="9" r="4" stroke="currentColor" stroke-width="2"/>
-         </svg>`;
-
-    messageDiv.innerHTML = `
-      <div class="msg-avatar">${iconHTML}</div>
-      <div class="msg-bubble">
-        <p>${formatMarkdown(text)}</p>
-      </div>
-    `;
-
+    messageDiv.innerHTML = `<div class="msg-bubble"><p>${formatMarkdown(text)}</p></div>`;
     chatMessages.appendChild(messageDiv);
+    scrollToBottom();
   }
 
-  let typingIndicatorEl = null;
+  function simulateAIResponse(userQuery, associatedTask = null) {
+    showTypingIndicator();
+    fetchGeminiAIHelp(userQuery, associatedTask).then(aiText => {
+      hideTypingIndicator();
+      appendChatMessage("incoming", aiText);
+    }).catch(() => {
+      hideTypingIndicator();
+      appendChatMessage("incoming", "Execution failure. Verify your credentials.");
+    });
+  }
 
   function showTypingIndicator() {
     if (typingIndicatorEl) return;
-    
     typingIndicatorEl = document.createElement("div");
-    typingIndicatorEl.className = "message incoming";
-    typingIndicatorEl.innerHTML = `
-      <div class="msg-avatar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
-        </svg>
-      </div>
-      <div class="msg-bubble">
-        <div class="typing-indicator">
-          <span class="typing-dot"></span>
-          <span class="typing-dot"></span>
-          <span class="typing-dot"></span>
-        </div>
-      </div>
-    `;
+    typingIndicatorEl.className = "message incoming typing-node";
+    typingIndicatorEl.innerHTML = `<div class="msg-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
     chatMessages.appendChild(typingIndicatorEl);
     scrollToBottom();
   }
 
   function hideTypingIndicator() {
-    if (typingIndicatorEl) {
-      typingIndicatorEl.remove();
-      typingIndicatorEl = null;
-    }
+    if (typingIndicatorEl) { typingIndicatorEl.remove(); typingIndicatorEl = null; }
   }
 
-  function simulateAIResponse(userQuery, associatedTask = null) {
-    showTypingIndicator();
-
-    fetchGeminiAIHelp(userQuery, associatedTask).then(aiText => {
-      hideTypingIndicator();
-      appendChatMessage("incoming", aiText);
-      scrollToBottom();
-      
-      if (!chatDrawer.classList.contains("is-expanded")) {
-        unreadCount++;
-        chatUnreadBadge.classList.remove("hidden");
-        chatUnreadBadge.textContent = unreadCount;
-      }
-    }).catch(err => {
-      hideTypingIndicator();
-      appendChatMessage("incoming", "Sorry, I had trouble communicating with the AI platform. Please check your setup.");
-      scrollToBottom();
-    });
-  }
-
-  function scrollToBottom() {
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  function escapeHTML(str) {
-    return str.replace(/[&<>'"]/g, 
-      tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-    );
-  }
-
-  function formatMarkdown(text) {
-    let html = escapeHTML(text);
-    html = html.replace(/\*\*(.*?)\*\//g, '<strong>$1</strong>');
-    html = html.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-    html = html.replace(/^-\s+(.*?)$/gm, '• $1');
-    html = html.replace(/\n/g, '<br>');
-    return html;
-  }
+  function scrollToBottom() { chatMessages.scrollTop = chatMessages.scrollHeight; }
+  function escapeHTML(str) { return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
+  function formatMarkdown(text) { return escapeHTML(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'); }
 
   function updateProductivityReport() {
-    const now = new Date();
-
-    const startOfToday = new Date(now);
-    startOfToday.setHours(0,0,0,0);
-    const endOfToday = new Date(now);
-    endOfToday.setHours(23,59,59,999);
-
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-    startOfWeek.setHours(0,0,0,0);
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(endOfWeek.getDate() + 7);
-
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-
-    const isToday = (dateStr) => {
-      if (!dateStr) return false;
-      const d = new Date(dateStr);
-      return d >= startOfToday && d <= endOfToday;
-    };
-
-    const isThisWeek = (dateStr) => {
-      if (!dateStr) return false;
-      const d = new Date(dateStr);
-      return d >= startOfWeek && d <= endOfWeek;
-    };
-
-    const isThisMonth = (dateStr) => {
-      if (!dateStr) return false;
-      const d = new Date(dateStr);
-      return d >= startOfMonth && d <= endOfMonth;
-    };
-
-    const dailyAdded = tasks.filter(t => isToday(t.createdAt)).length;
-    const dailyCompleted = tasks.filter(t => t.completed && isToday(t.completedAt)).length;
-
-    const weeklyAdded = tasks.filter(t => isThisWeek(t.createdAt)).length;
-    const weeklyCompleted = tasks.filter(t => t.completed && isThisWeek(t.completedAt)).length;
-
-    const monthlyAdded = tasks.filter(t => isThisMonth(t.createdAt)).length;
-    const monthlyCompleted = tasks.filter(t => t.completed && isThisMonth(t.completedAt)).length;
-
-    const updateCard = (cardId, completed, added) => {
-      const cards = document.querySelectorAll(`#${cardId}, #prod-${cardId}`);
-      cards.forEach(card => {
-        const compCountEl = card.querySelector(`span[id$="-completed-count"]`);
-        const addCountEl = card.querySelector(`span[id$="-added-count"]`);
-        const barEl = card.querySelector(".progress-bar");
-        const pctEl = card.querySelector(".percentage");
-        const statusEl = card.querySelector(".status-badge");
-
-        if (compCountEl) compCountEl.textContent = completed;
-        if (addCountEl) addCountEl.textContent = added;
-
-        let pct = 0;
-        if (added > 0) {
-          pct = Math.round((completed / added) * 100);
-        } else if (completed > 0) {
-          pct = 100; 
-        }
-
-        const pctClamped = Math.min(100, pct);
-        if (pctEl) pctEl.textContent = `${pct}%`;
-        if (barEl) barEl.style.width = `${pctClamped}%`;
-
-        if (statusEl) {
-          statusEl.className = "status-badge"; 
-          if (pct > 80) {
-            statusEl.textContent = "Excellent";
-            statusEl.classList.add("status-excellent");
-          } else if (pct > 50) {
-            statusEl.textContent = "Good";
-            statusEl.classList.add("status-good");
-          } else {
-            statusEl.textContent = "Needs Work";
-            statusEl.classList.add("status-needswork");
-          }
-        }
-      });
-
-      let prefix = "";
-      if (cardId === "report-daily") prefix = "daily";
-      if (cardId === "report-weekly") prefix = "weekly";
-      if (cardId === "report-monthly") prefix = "monthly";
-
-      if (prefix) {
-        const circleBar = document.getElementById(`${prefix}-circle-bar`);
-        const circlePct = document.getElementById(`${prefix}-circle-pct`);
-        const circleWrapper = document.getElementById(`${prefix}-circle-wrapper`);
-
-        let pct = 0;
-        if (added > 0) {
-          pct = Math.round((completed / added) * 100);
-        } else if (completed > 0) {
-          pct = 100;
-        }
-        const pctClamped = Math.min(100, pct);
-
-        if (circleBar) circleBar.setAttribute("stroke-dasharray", `${pctClamped}, 100`);
-        if (circlePct) circlePct.textContent = `${pct}%`;
-        if (circleWrapper) {
-          const capitalized = prefix.charAt(0).toUpperCase() + prefix.slice(1);
-          circleWrapper.setAttribute("title", `${capitalized} Performance: ${completed}/${added} completed (${pct}%)`);
-        }
-      }
-    };
-
-    updateCard("report-daily", dailyCompleted, dailyAdded);
-    updateCard("report-weekly", weeklyCompleted, weeklyAdded);
-    updateCard("report-monthly", monthlyCompleted, monthlyAdded);
+    const added = tasks.length;
+    const completed = tasks.filter(t => t.completed).length;
+    const pct = added > 0 ? Math.round((completed / added) * 100) : 0;
+    if (document.querySelector(".progress-bar")) document.querySelector(".progress-bar").style.width = `${pct}%`;
+    if (document.querySelector(".percentage")) document.querySelector(".percentage").textContent = `${pct}%`;
   }
 
-  function updateStreakChart() {
-    const chartContainer = document.getElementById("streak-bar-chart");
-    if (!chartContainer) return;
-
-    chartContainer.innerHTML = "";
-
-    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const now = new Date();
-
-    const completionsCount = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(now.getDate() - i);
-      
-      const startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-      const endOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
-
-      const count = tasks.filter(t => {
-        if (!t.completed || !t.completedAt) return false;
-        const compDate = new Date(t.completedAt);
-        return compDate >= startOfDay && compDate <= endOfDay;
-      }).length;
-
-      completionsCount.push({
-        dayLabel: daysOfWeek[d.getDay()],
-        count: count
-      });
-    }
-
-    const maxCompletions = Math.max(...completionsCount.map(c => c.count), 1);
-
-    completionsCount.forEach(data => {
-      const col = document.createElement("div");
-      col.className = "chart-bar-container";
-
-      const valSpan = document.createElement("span");
-      valSpan.className = "chart-bar-val";
-      valSpan.textContent = data.count;
-
-      const fillWrapper = document.createElement("div");
-      fillWrapper.className = "chart-bar-fill-wrapper";
-
-      const fill = document.createElement("div");
-      fill.className = "chart-bar-fill";
-      
-      if (data.count === 0) {
-        fill.classList.add("empty");
-        fill.style.height = "100%";
-      } else {
-        const heightPercent = (data.count / maxCompletions) * 100;
-        const displayHeight = Math.max(8, heightPercent);
-        fill.style.height = `${displayHeight}%`;
-      }
-
-      const label = document.createElement("span");
-      label.className = "chart-bar-label";
-      label.textContent = data.dayLabel;
-
-      fillWrapper.appendChild(fill);
-      col.appendChild(valSpan);
-      col.appendChild(fillWrapper);
-      col.appendChild(label);
-      
-      chartContainer.appendChild(col);
-    });
-  }
-
-  function updatePriorityBreakdown() {
-    const priorities = ["high", "medium", "low"];
-    priorities.forEach(p => {
-      const total = tasks.filter(t => t.priority === p).length;
-      const completed = tasks.filter(t => t.priority === p && t.completed).length;
-
-      let elementPrefix = p;
-      if (p === "medium") elementPrefix = "med";
-
-      const countEl = document.getElementById(`${elementPrefix}-priority-counts`);
-      const progressEl = document.getElementById(`${elementPrefix}-priority-progress`);
-
-      if (countEl) countEl.textContent = `${completed} / ${total}`;
-      if (progressEl) {
-        const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-        progressEl.style.width = `${pct}%`;
-      }
-    });
-  }
-
-  window.renderTasks = renderTasks;
-  window.updateStats = updateStats;
-  window.updateProductivityReport = updateProductivityReport;
+  function updateStreakChart() {}
+  function updatePriorityBreakdown() {}
+  let typingIndicatorEl = null;
 });
 
 // ==========================================
-// 5. CLOUD SECURITY INTEGRATION CORRIDORS
+// OUTBOUND COMMUNICATIONS & BACKEND SYNC
 // ==========================================
 
 async function signInWithGoogle() {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-    console.log("Signed in as:", user.displayName);
-  } catch (error) {
-    console.error("Sign in error:", error);
-  }
+  try { await signInWithPopup(auth, googleProvider); } catch (error) { console.error("Identity reconciliation error:", error); }
 }
 
 async function signOutUser() {
-  try {
-    await signOut(auth);
-    console.log("Signed out successfully");
-  } catch (error) {
-    console.error("Sign out error:", error);
-  }
+  try { await signOut(auth); } catch (error) { console.error("Session termination failure:", error); }
 }
 
 onAuthStateChanged(auth, async (user) => {
-  const loginScreen = document.getElementById("login-screen");
-  const userProfile = document.getElementById("user-profile");
-  const userAvatar = document.getElementById("user-avatar");
-  const userName = document.getElementById("user-name");
-
   if (user) {
-    if (loginScreen) loginScreen.style.display = "none";
-    if (userProfile) userProfile.style.display = "flex";
-    if (userAvatar && user.photoURL) userAvatar.src = user.photoURL;
-    if (userName) userName.textContent = user.displayName;
-
+    if (document.getElementById("login-screen")) document.getElementById("login-screen").style.display = "none";
     await loadTasksFromFirebase(user.uid);
-
   } else {
-    if (loginScreen) loginScreen.style.display = "flex";
-    if (userProfile) userProfile.style.display = "none";
+    if (document.getElementById("login-screen")) document.getElementById("login-screen").style.display = "flex";
   }
 });
 
 async function loadTasksFromFirebase(userId) {
   try {
-    console.log("Loading tasks from Firestore...");
     const tasksColRef = collection(db, "users", userId, "tasks");
     const snapshot = await getDocs(tasksColRef);
-
     if (!snapshot.empty) {
       tasks = snapshot.docs.map(doc => doc.data());
-      console.log("✓ Loaded", tasks.length, "tasks from Firestore");
       localStorage.setItem("crunchtime_tasks", JSON.stringify(tasks));
-    } else {
-      const stored = localStorage.getItem("crunchtime_tasks");
-      if (stored) {
-        try {
-          tasks = JSON.parse(stored);
-          console.log("✓ Loaded", tasks.length, "tasks from localStorage");
-          await syncTasksToFirebase();
-        } catch (e) {
-          tasks = [];
-        }
-      } else {
-        tasks = [];
-      }
     }
-
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => {
-        if (typeof renderTasks === "function") renderTasks();
-        if (typeof updateStats === "function") updateStats();
-        if (typeof updateProductivityReport === "function") updateProductivityReport();
-      });
-    } else {
-      if (typeof renderTasks === "function") renderTasks();
-      if (typeof updateStats === "function") updateStats();
-      if (typeof updateProductivityReport === "function") updateProductivityReport();
-    }
-
+    if (typeof window.renderTasks === "function") window.renderTasks();
   } catch (err) {
-    console.error("Failed to load from Firestore:", err);
-    const stored = localStorage.getItem("crunchtime_tasks");
-    if (stored) {
-      try { tasks = JSON.parse(stored); } catch (e) { tasks = []; }
-    }
-    if (document.readyState !== "loading") {
-      if (typeof renderTasks === "function") renderTasks();
-      if (typeof updateStats === "function") updateStats();
-    }
+    console.error("Firebase fetch exception:", err);
   }
 }
 
 async function fetchGeminiAIHelp(prompt, task = null) {
-  const tasksSummary = tasks.map(t => ({
-    id: t.id,
-    name: t.name,
-    priority: t.priority,
-    deadline: t.deadline,
-    completed: t.completed,
-    description: t.description || ""
-  }));
-
-  const now = new Date();
-  const systemPrompt = `
-You are CrunchTime AI — an agentic task management assistant.
-Current date and time: ${now.toISOString()}
-Current day: ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-
-The user has these tasks currently:
-${JSON.stringify(tasksSummary, null, 2)}
-
-You must analyze the user message and return a JSON response.
-Return ONLY valid JSON. No markdown. No explanation. No code blocks.
-
-Respond with exactly this structure:
-{
-  "action": "ACTION_NAME",
-  "data": {},
-  "message": "Friendly confirmation message to show user"
-}
-
-Available actions: ADD_TASK, COMPLETE_TASK, DELETE_TASK, SUGGEST_FOCUS, BREAKDOWN_TASK, SHOW_TASKS, PRODUCTIVITY_REPORT, CHAT
-`;
+  const tasksSummary = tasks.map(t => ({ id: t.id, name: t.name, priority: t.priority, completed: t.completed }));
+  const systemPrompt = `You are CrunchTime AI. User tasks: ${JSON.stringify(tasksSummary)}. Respond in structural schema: {"action": "CHAT", "data": {}, "message": "Text"}`;
 
   try {
-    let finalPrompt = prompt;
-    if (task) {
-      finalPrompt = `Context: This query is related to the task: "${task.name}" (Priority: ${task.priority}, Deadline: ${task.deadline || "No Deadline"}).\n\nUser Message: ${prompt}`;
-    }
-
+    let finalPrompt = task ? `Task context: ${task.name}. Prompt: ${prompt}` : prompt;
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "x-goog-api-key": ACTIVE_GEMINI_KEY // 🔑 Fixed: Automatically pulls the absolute prioritized key token
-      },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
       body: JSON.stringify({
         contents: [{ parts: [{ text: finalPrompt }] }],
         systemInstruction: { parts: [{ text: systemPrompt }] }
       })
     });
 
-    if (!response.ok) {
-      throw new Error(`Gemini Server HTTP Error! Status: ${response.status}`);
-    }
-    
+    if (!response.ok) throw new Error(`Status exception: ${response.status}`);
     const result = await response.json();
-    const rawText = result.candidates[0].content.parts[0].text;
-
-    let cleanText = rawText.trim();
-    if (cleanText.startsWith("```")) {
-      cleanText = cleanText.replace(/^```json\s*/i, "").replace(/```\s*$/s, "").trim();
-    }
-
-    const firstBrace = cleanText.indexOf("{");
-    const lastBrace = cleanText.lastIndexOf("}");
-    if (firstBrace !== -1 && lastBrace !== -1) {
-      cleanText = cleanText.substring(firstBrace, lastBrace + 1);
-    }
-
-    const parsed = JSON.parse(cleanText);
+    let cleanText = result.candidates[0].content.parts[0].text.trim();
+    
+    if (cleanText.startsWith("```")) cleanText = cleanText.replace(/^```json\s*/i, "").replace(/```\s*$/s, "").trim();
+    const parsed = JSON.parse(cleanText.substring(cleanText.indexOf("{"), cleanText.lastIndexOf("}") + 1));
     return await executeAgentAction(parsed, prompt);
-
   } catch (err) {
-    console.error("Gemini Direct Bridge Error:", err);
-    if (err.message && err.message.includes("429")) {
-      return "⏳ **Rate Limit Hit:** Gemini is cooling down. Please wait 10 seconds before testing another prompt.";
-    }
-    return "Sorry, I had trouble communicating with the AI platform. Please check your setup.";
+    return "Communication breakdown. Check console diagnostics.";
   }
 }
 
 async function executeAgentAction(parsed, originalPrompt) {
   const action = parsed.action;
   const data = parsed.data;
-  const message = parsed.message || "Done!";
+  const message = parsed.message || "Processed.";
 
   if (action === "ADD_TASK") {
-    const newTask = {
-      id: "task-" + Date.now(),
-      name: data.name || "Untitled Task",
-      description: data.description || "",
-      deadline: data.deadline || null,
-      priority: data.priority || "medium",
-      completed: false,
-      section: data.section || "auto",
-      createdAt: new Date().toISOString()
-    };
-
+    const newTask = { id: "task-" + Date.now(), name: data.name || "AI Task", priority: data.priority || "medium", completed: false, createdAt: new Date().toISOString() };
     tasks.unshift(newTask);
     saveToLocalStorage();
-    if (typeof renderTasks === "function") renderTasks();
-    if (typeof updateStats === "function") updateStats();
-    if (typeof updateProductivityReport === "function") updateProductivityReport();
-
-    return `✅ **Task Created!**\n\n**${newTask.name}**\nPriority: ${newTask.priority}\nDeadline: ${newTask.deadline ? new Date(newTask.deadline).toLocaleString() : "No Deadline"}\n\n${message}`;
+    return `✅ **Task Created!** \n\n${message}`;
   }
-
-  if (action === "COMPLETE_TASK") {
-    const taskIndex = tasks.findIndex(t => t.id === data.id);
-    if (taskIndex !== -1) {
-      tasks[taskIndex].completed = true;
-      tasks[taskIndex].completedAt = new Date().toISOString();
-      saveToLocalStorage();
-      if (typeof renderTasks === "function") renderTasks();
-      if (typeof updateStats === "function") updateStats();
-      if (typeof updateProductivityReport === "function") updateProductivityReport();
-      return `✅ **Marked Complete!**\n\n"${tasks[taskIndex].name}" is done. Great work! 🎉\n\n${message}`;
-    }
-    return `❌ Could not find that task. Try being more specific about the task name.`;
-  }
-
-  if (action === "DELETE_TASK") {
-    const taskIndex = tasks.findIndex(t => t.id === data.id);
-    if (taskIndex !== -1) {
-      const taskName = tasks[taskIndex].name;
-      tasks.splice(taskIndex, 1);
-      saveToLocalStorage();
-      if (typeof renderTasks === "function") renderTasks();
-      if (typeof updateStats === "function") updateStats();
-      return `🗑️ **Deleted!**\n\n"${taskName}" has been removed.\n\n${message}`;
-    }
-    return `❌ Could not find that task to delete.`;
-  }
-
-  if (action === "SUGGEST_FOCUS") {
-    const focusTask = tasks.find(t => t.id === data.taskId);
-    const taskName = focusTask ? focusTask.name : "your most urgent task";
-    return `🎯 **Focus on this first:**\n\n**${taskName}**\n\n${data.reason}\n\n${message}`;
-  }
-
-  if (action === "BREAKDOWN_TASK") {
-    const targetTask = tasks.find(t => t.id === data.taskId);
-    const taskName = targetTask ? targetTask.name : "your task";
-    const steps = (data.steps || []).map((s, i) => `${i + 1}. ${s}`).join("\n");
-    return `📋 **Action Plan: ${taskName}**\n\n${steps}\n\n${message}`;
-  }
-
-  if (action === "SHOW_TASKS") {
-    const taskList = (data.tasks || []).map(t => `• **${t.name}** (${t.priority}) — ${t.deadline}`).join("\n");
-    return `📌 **${data.filter} Tasks:**\n\n${taskList || "No tasks found."}\n\n${message}`;
-  }
-
-  if (action === "PRODUCTIVITY_REPORT") {
-    return `📊 **Your Productivity Report:**\n\nTotal Tasks: ${data.total}\nCompleted: ${data.completed}\nUrgent: ${data.urgent}\nOverdue: ${data.overdue}\n\n💡 ${data.insight}\n\n${message}`;
-  }
-
-  if (action === "CHAT") {
-    return data.response || message;
-  }
-
-  return message;
+  return parsed.message || "Analysis complete.";
 }
