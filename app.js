@@ -9,6 +9,11 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
+// Safe fallback resolution for the Gemini API Key
+const ACTIVE_GEMINI_KEY = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY && !GEMINI_API_KEY.includes("MOCK")) 
+  ? GEMINI_API_KEY 
+  : "YOUR_ACTUAL_GEMINI_KEY_HERE"; // 🔑 You can paste your real key string here directly if imports fail!
+
 /**
  * CRUNCHTIME - CORE APPLICATION LOGIC
  * Includes: Task Management, Tickers, Statistics, Form Validation, AI Chat Simulator,
@@ -73,36 +78,33 @@ function saveCustomSections() {
   localStorage.setItem("crunchtime_custom_sections", JSON.stringify(customSections));
 }
 
-// Sample Tasks to display if no tasks exist
 const DEFAULT_TASKS = [
   {
     id: "sample-task-1",
     name: "Design CrunchTime Presentation Slide Deck",
     description: "Refine typography, color contrast, and structure slides detailing the value proposition, user journey, and technical design.",
-    deadline: getFutureTimeISO(2.5), // 2 hours 30 mins from now
+    deadline: getFutureTimeISO(2.5), 
     priority: "high",
     completed: false,
-    createdAt: getFutureTimeISO(-1.5) // created 1.5 hours ago
+    createdAt: getFutureTimeISO(-1.5) 
   },
   {
     id: "sample-task-2",
     name: "Audit Firebase Security Rules & DB Snapshot",
     description: "Run weekly backups of development database and verify that security rules restrict unauthorized read/writes.",
-    deadline: getFutureTimeISO(27), // 1 day and 3 hours from now
+    deadline: getFutureTimeISO(27), 
     priority: "medium",
     completed: false,
-    createdAt: getFutureTimeISO(-25) // created 25 hours ago
+    createdAt: getFutureTimeISO(-25) 
   }
 ];
 
-// Helper to generate future time
 function getFutureTimeISO(hoursInFuture) {
   const now = new Date();
   now.setMilliseconds(now.getMilliseconds() + (hoursInFuture * 60 * 60 * 1000));
   return now.toISOString();
 }
 
-// Load tasks from LocalStorage
 function initTasks() {
   initCustomSections();
   const stored = localStorage.getItem("crunchtime_tasks");
@@ -115,7 +117,6 @@ function initTasks() {
       saveToLocalStorage();
     }
   } else {
-    // Inject defaults
     tasks = [...DEFAULT_TASKS];
     saveToLocalStorage();
   }
@@ -1355,7 +1356,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 4. AI CHAT ASSISTANT SIMULATION INTERFACE
+  // 4. AI CHAT ASSISTANT INTERFACE
   // ==========================================
 
   function requestAIHelpForTask(task) {
@@ -1810,7 +1811,7 @@ Available actions: ADD_TASK, COMPLETE_TASK, DELETE_TASK, SUGGEST_FOCUS, BREAKDOW
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
-        "x-goog-api-key": GEMINI_API_KEY
+        "x-goog-api-key": ACTIVE_GEMINI_KEY // 🔑 Fixed: Automatically pulls the absolute prioritized key token
       },
       body: JSON.stringify({
         contents: [{ parts: [{ text: finalPrompt }] }],
