@@ -7,4 +7,4 @@ export const firebaseConfig = {
   appId: "1:220460702653:web:a6193a97e389999b6a50d4"
 };
 
-export const GEMINI_API_KEY = "API_KEy";
+export const GEMINI_API_KEY = "AQ.Ab8RN6LKNJOWxp6xVxC5sHOVaEAaHQoJs12C9qIXCWJqP8b1Qg";
