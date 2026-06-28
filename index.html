@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="CrunchTime - AI-powered productivity companion to beat every deadline. Plan, prioritize, and crush tasks before time runs out.">
+  <title>CrunchTime | Beat Every Deadline</title>
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- Login Screen Overlay -->
+  <div id="login-screen" class="login-screen" style="display: none;">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="#e63946" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>Crunch<span>Time</span></h1>
+      <p>Beat Every Deadline</p>
+      <button id="google-signin-btn">Sign in with Google</button>
+    </div>
+  </div>
+
+  <div class="glow-bg"></div>
+
+  <!-- Outer Page Layout Layout -->
+  <div class="app-layout">
+
+    <!-- 1. Collapsible Page Sidebar Navigation -->
+    <aside class="page-sidebar" id="page-sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon-small" id="sidebar-logo-toggle" title="Toggle Sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="#e63946" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="sidebar-brand-text">Crunch<span>Time</span></span>
+      </div>
+
+      <div class="sidebar-scroll-area">
+        <nav class="sidebar-nav">
+          <button class="sidebar-nav-item active" data-filter="all" title="All Tasks">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6H20M4 12H20M4 18H20" />
+            </svg>
+            <span class="nav-label">All Tasks</span>
+          </button>
+          <button class="sidebar-nav-item" data-filter="active" title="Active">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M12 8V12L15 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" />
+            </svg>
+            <span class="nav-label">Active</span>
+          </button>
+          <button class="sidebar-nav-item" data-filter="completed" title="Completed">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" />
+            </svg>
+            <span class="nav-label">Completed</span>
+          </button>
+          <button class="sidebar-nav-item" data-filter="today" title="Today's Tasks">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <path d="M16 2V6M8 2V6M3 10H21"/>
+            </svg>
+            <span class="nav-label">Today's Tasks</span>
+          </button>
+          <button class="sidebar-nav-item" data-filter="productivity" title="Productivity">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 20V10M12 20V4M6 20V14"/>
+            </svg>
+            <span class="nav-label">Productivity</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-productivity-report">
+          <!-- 7-Day Streak Chart -->
+          <div class="sidebar-graph-container" id="sidebar-streak-graph">
+            <h4 class="graph-title">7-Day Streak</h4>
+            <div class="graph-bar-chart" id="streak-chart-bars">
+              <!-- Bars generated dynamically in app.js -->
+            </div>
+          </div>
+
+          <!-- Expanded Report Cards -->
+          <div class="sidebar-report-expanded">
+            <!-- Daily Report Card -->
+            <div class="report-card card-glass" id="report-daily">
+              <h3 class="report-card-title">Daily Performance</h3>
+              <p class="report-stats-raw">Completed: <span id="daily-completed-count"
+                  style="color: var(--primary-accent); font-weight: 700;">0</span> / Added: <span
+                  id="daily-added-count">0</span></p>
+              <div class="progress-container">
+                <div class="progress-bar" id="daily-progress-bar"></div>
+              </div>
+              <div class="report-footer">
+                <span class="percentage" id="daily-percentage">0%</span>
+                <span class="status-badge status-needswork" id="daily-status">Needs Work</span>
+              </div>
+            </div>
+
+            <!-- Weekly Report Card -->
+            <div class="report-card card-glass" id="report-weekly">
+              <h3 class="report-card-title">Weekly Performance</h3>
+              <p class="report-stats-raw">Completed: <span id="weekly-completed-count"
+                  style="color: var(--primary-accent); font-weight: 700;">0</span> / Added: <span
+                  id="weekly-added-count">0</span></p>
+              <div class="progress-container">
+                <div class="progress-bar" id="weekly-progress-bar"></div>
+              </div>
+              <div class="report-footer">
+                <span class="percentage" id="weekly-percentage">0%</span>
+                <span class="status-badge status-needswork" id="weekly-status">Needs Work</span>
+              </div>
+            </div>
+
+            <!-- Monthly Report Card -->
+            <div class="report-card card-glass" id="report-monthly">
+              <h3 class="report-card-title">Monthly Performance</h3>
+              <p class="report-stats-raw">Completed: <span id="monthly-completed-count"
+                  style="color: var(--primary-accent); font-weight: 700;">0</span> / Added: <span
+                  id="monthly-added-count">0</span></p>
+              <div class="progress-container">
+                <div class="progress-bar" id="monthly-progress-bar"></div>
+              </div>
+              <div class="report-footer">
+                <span class="percentage" id="monthly-percentage">0%</span>
+                <span class="status-badge status-needswork" id="monthly-status">Needs Work</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Collapsed circular progress indicators -->
+          <div class="sidebar-report-collapsed">
+            <!-- Daily circle -->
+            <div class="progress-circle-wrapper" id="daily-circle-wrapper" title="Daily Performance: 0%">
+              <svg class="progress-circle" width="36" height="36" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle-progress" id="daily-circle-bar" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke="var(--primary-accent)" stroke-dasharray="0, 100" />
+              </svg>
+              <span class="circle-percentage" id="daily-circle-pct">0%</span>
+            </div>
+
+            <!-- Weekly circle -->
+            <div class="progress-circle-wrapper" id="weekly-circle-wrapper" title="Weekly Performance: 0%">
+              <svg class="progress-circle" width="36" height="36" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle-progress" id="weekly-circle-bar" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke="var(--primary-accent)" stroke-dasharray="0, 100" />
+              </svg>
+              <span class="circle-percentage" id="weekly-circle-pct">0%</span>
+            </div>
+
+            <!-- Monthly circle -->
+            <div class="progress-circle-wrapper" id="monthly-circle-wrapper" title="Monthly Performance: 0%">
+              <svg class="progress-circle" width="36" height="36" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle-progress" id="monthly-circle-bar" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke="var(--primary-accent)" stroke-dasharray="0, 100" />
+              </svg>
+              <span class="circle-percentage" id="monthly-circle-pct">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Sidebar Backdrop Overlay (Mobile only) -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- Main Content Layout Section -->
+    <div class="main-content-layout">
+      <div class="app-container">
+
+        <!-- Header Section -->
+        <header class="app-header">
+          <div class="header-logo-group">
+            <!-- Mobile Menu Toggle Button -->
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open Navigation Sidebar">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round">
+                <path d="M4 6H20M4 12H20M4 18H20" />
+              </svg>
+            </button>
+
+            <div class="logo-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93"
+                  stroke="#e63946" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M12 8V12L15 14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="logo-text">
+              <h1>Crunch<span>Time</span></h1>
+              <p class="tagline">Beat Every Deadline</p>
+            </div>
+          </div>
+
+          <!-- Live Clock Widget for Urgency -->
+          <div class="live-clock-widget" id="live-clock-widget">
+            <span class="clock-label">CURRENT TIME</span>
+            <span id="live-clock" class="clock-value">00:00:00 PM</span>
+          </div>
+
+          <!-- User Profile Component (Dynamic rendering managed in app.js) -->
+          <div class="user-profile" id="user-profile" style="display:none;">
+            <img id="user-avatar" src="" alt="avatar" width="36" height="36" style="border-radius:50%">
+            <div class="user-info">
+              <span id="user-name" style="font-size: 0.8rem; font-weight:600;"></span>
+              <button id="signout-btn" style="background:none; border:none; color:var(--text-secondary); font-size:0.7rem; cursor:pointer; padding:0; text-align:left; text-decoration:underline;">Sign Out</button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Dashboard Strip Section -->
+        <section class="dashboard-strip" aria-label="Task Statistics">
+          <div class="stat-card" id="stat-total">
+            <div class="stat-icon-wrapper blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <div class="stat-details">
+              <span class="stat-num" id="stat-count-total">0</span>
+              <span class="stat-label">Total Tasks</span>
+            </div>
+          </div>
+
+          <div class="stat-card" id="stat-completed">
+            <div class="stat-icon-wrapper green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M9 11L11 13L15 9M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="stat-details">
+              <span class="stat-num" id="stat-count-completed">0</span>
+              <span class="stat-label">Completed</span>
+            </div>
+          </div>
+
+          <div class="stat-card" id="stat-urgent">
+            <div class="stat-icon-wrapper orange">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 9V14M12 17.01L12.01 16.9989M10.29 3.86L1.82 18C1.64537 18.3024 1.55299 18.6453 1.55194 18.9945C1.5509 19.3437 1.64124 19.6871 1.81402 19.9905C1.9868 20.2939 2.2358 20.5468 2.53672 20.7241C2.83765 20.9015 3.1798 20.997 3.528 21H20.472C20.8202 20.997 21.1623 20.9015 21.4633 20.7241C21.7642 20.5468 22.0132 20.2939 22.186 19.9905C22.3588 19.6871 22.4491 19.3437 22.4481 18.9945C22.447 18.6453 22.3546 18.3024 22.18 18L13.71 3.86C13.5317 3.55611 13.2787 3.30372 12.9754 3.12711C12.672 2.95049 12.3286 2.85547 11.979 2.85547C11.6294 2.85547 11.286 2.95049 10.9826 3.12711C10.6793 3.30372 10.4263 3.55611 10.29 3.86Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="stat-details">
+              <span class="stat-num" id="stat-count-urgent">0</span>
+              <span class="stat-label">Urgent</span>
+            </div>
+          </div>
+
+          <div class="stat-card" id="stat-overdue">
+            <div class="stat-icon-wrapper red">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 8V12L14 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="stat-details">
+              <span class="stat-num" id="stat-count-overdue">0</span>
+              <span class="stat-label">Overdue</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Main Workspace Grid -->
+        <main class="main-grid">
+
+          <!-- Add Task Section -->
+          <section class="form-section card-glass" aria-labelledby="form-heading">
+            <h2 id="form-heading" class="section-title">
+              <span class="title-accent"></span>
+              Initialize Target
+            </h2>
+            <p class="section-desc">Add a task and set its ticking timer.</p>
+
+            <form id="add-task-form" novalidate>
+              <div class="form-group">
+                <label for="task-name">Task Name</label>
+                <input type="text" id="task-name" placeholder="What needs to be done?" required autocomplete="off">
+                <span class="error-msg" id="name-error">Task name is required.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="task-desc">Description (Optional)</label>
+                <textarea id="task-desc" rows="3" placeholder="Briefly specify key deliverables..."></textarea>
+              </div>
+
+              <div class="form-group checkbox-group"
+                style="flex-direction: row; gap: 0.5rem; align-items: center; margin-bottom: 1.25rem;">
+                <input type="checkbox" id="task-no-deadline" style="width: auto; cursor: pointer;">
+                <label for="task-no-deadline"
+                  style="cursor: pointer; text-transform: none; font-size: 0.85rem; font-weight: 500; color: var(--text-color);">No
+                  Deadline / Someday Task</label>
+              </div>
+
+              <div class="form-row" id="deadline-input-row">
+                <div class="form-group flex-1">
+                  <label for="task-deadline">Deadline</label>
+                  <input type="datetime-local" id="task-deadline">
+                  <span class="error-msg" id="deadline-error">Please set a valid future deadline.</span>
+                </div>
+
+                <div class="form-group flex-1">
+                  <label for="task-priority">Priority Level</label>
+                  <select id="task-priority">
+                    <option value="low">Low Priority</option>
+                    <option value="medium" selected>Medium Priority</option>
+                    <option value="high">High Priority</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="task-section">Destination Section</label>
+                <select id="task-section">
+                  <option value="auto" selected>Automatic (By Deadline)</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn-primary" id="btn-add-task">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5V19M5 12H19" />
+                </svg>
+                Activate Clock
+              </button>
+            </form>
+          </section>
+
+          <!-- Grouped Collapsible Home Task Sections -->
+          <section class="tasks-section" aria-labelledby="tasks-heading">
+            <header class="section-header"
+              style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+              <div class="title-group">
+                <h2 id="tasks-heading" class="section-title" style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="title-accent"></span>
+                  Live Operations
+                  <button type="button" class="btn-add-section" title="Create Custom Section"
+                    id="add-section-btn">+</button>
+                </h2>
+                <p class="section-desc" id="task-list-subtitle">Active objectives split by sections</p>
+              </div>
+            </header>
+
+            <!-- Dynamic Grouped Tasks Container -->
+            <div id="tasks-container" class="tasks-container">
+
+              <!-- Section 1: Today's Missions -->
+              <div class="task-section" id="section-today">
+                <header class="section-group-header">
+                  <span class="toggle-arrow">▼</span>
+                  <span class="section-group-title">Today's Missions</span>
+                  <button type="button" class="btn-add-section-inline" title="Create Custom Section">+</button>
+                  <span class="count-badge today-badge">0</span>
+                </header>
+                <div class="section-cards-wrapper">
+                  <!-- dynamic tasks -->
+                </div>
+              </div>
+
+              <!-- Section 2: Upcoming -->
+              <div class="task-section" id="section-upcoming">
+                <header class="section-group-header">
+                  <span class="toggle-arrow">▼</span>
+                  <span class="section-group-title">Upcoming</span>
+                  <button type="button" class="btn-add-section-inline" title="Create Custom Section">+</button>
+                  <span class="count-badge upcoming-badge">0</span>
+                </header>
+                <div class="section-cards-wrapper">
+                  <!-- dynamic tasks -->
+                </div>
+              </div>
+
+              <!-- Section 3: No Deadline Tasks -->
+              <div class="task-section" id="section-someday">
+                <header class="section-group-header">
+                  <span class="toggle-arrow">▼</span>
+                  <span class="section-group-title">No Deadline Tasks</span>
+                  <button type="button" class="btn-add-section-inline" title="Create Custom Section">+</button>
+                  <span class="count-badge someday-badge">0</span>
+                </header>
+                <div class="section-cards-wrapper">
+                  <!-- dynamic tasks -->
+                </div>
+              </div>
+
+              <!-- Section 4: Completed (Collapsed by default) -->
+              <div class="task-section collapsed" id="section-completed">
+                <header class="section-group-header">
+                  <span class="toggle-arrow">▼</span>
+                  <span class="section-group-title">Completed</span>
+                  <button type="button" class="btn-add-section-inline" title="Create Custom Section">+</button>
+                  <span class="count-badge completed-badge">0</span>
+                </header>
+                <div class="section-cards-wrapper">
+                  <!-- dynamic tasks -->
+                </div>
+              </div>
+
+              <!-- General Empty State -->
+              <div id="empty-state" class="empty-state card-glass hidden">
+                <div class="empty-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                      stroke="#606060" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <h3>No Operations Active</h3>
+                <p>Initialize a task to display active tickers and priority cards.</p>
+              </div>
+
+            </div>
+          </section>
+
+        </main>
+
+        <!-- Productivity View Dashboard -->
+        <div id="productivity-view" class="productivity-view hidden" style="margin-top: 1rem;">
+          
+          <!-- A) STATS SUMMARY ROW -->
+          <section class="dashboard-strip" aria-label="Productivity Statistics" style="margin-bottom: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+            <div class="stat-card" id="prod-stat-total" style="cursor: default;">
+              <div class="stat-icon-wrapper blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="stat-details">
+                <span class="stat-num" id="prod-stat-count-total">0</span>
+                <span class="stat-label">Total Tasks</span>
+              </div>
+            </div>
+
+            <div class="stat-card" id="prod-stat-completed" style="cursor: default;">
+              <div class="stat-icon-wrapper green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 11L11 13L15 9M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="stat-details">
+                <span class="stat-num" id="prod-stat-count-completed">0</span>
+                <span class="stat-label">Completed</span>
+              </div>
+            </div>
+
+            <div class="stat-card" id="prod-stat-urgent" style="cursor: default;">
+              <div class="stat-icon-wrapper orange">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 9V14M12 17.01L12.01 16.9989M10.29 3.86L1.82 18C1.64537 18.3024 1.55299 18.6453 1.55194 18.9945C1.5509 19.3437 1.64124 19.6871 1.81402 19.9905C1.9868 20.2939 2.2358 20.5468 2.53672 20.7241C2.83765 20.9015 3.1798 20.997 3.528 21H20.472C20.8202 20.997 21.1623 20.9015 21.4633 20.7241C21.7642 20.5468 22.0132 20.2939 22.186 19.9905C22.3588 19.6871 22.4491 19.3437 22.4481 18.9945C22.447 18.6453 22.3546 18.3024 22.18 18L13.71 3.86C13.5317 3.55611 13.2787 3.30372 12.9754 3.12711C12.672 2.95049 12.3286 2.85547 11.979 2.85547C11.6294 2.85547 11.286 2.95049 10.9826 3.12711C10.6793 3.30372 10.4263 3.55611 10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="stat-details">
+                <span class="stat-num" id="prod-stat-count-urgent">0</span>
+                <span class="stat-label">Urgent</span>
+              </div>
+            </div>
+
+            <div class="stat-card" id="prod-stat-overdue" style="cursor: default;">
+              <div class="stat-icon-wrapper red">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 8V12L14 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="stat-details">
+                <span class="stat-num" id="prod-stat-count-overdue">0</span>
+                <span class="stat-label">Overdue</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- B) 7-DAY BAR CHART & D) PRIORITY BREAKDOWN ROW -->
+          <div class="productivity-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+            <!-- Bar Chart -->
+            <div class="chart-container card-glass" style="padding: 1.5rem;">
+              <h3 class="chart-title" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem;">7-Day Streak</h3>
+              <div class="bar-chart" id="streak-bar-chart" style="display: flex; justify-content: space-between; align-items: flex-end; height: 180px; padding: 0 0.5rem;">
+                <!-- dynamic bars -->
+              </div>
+            </div>
+
+            <!-- Priority Breakdown -->
+            <div class="priority-breakdown-container card-glass" style="padding: 1.5rem;">
+              <h3 class="chart-title" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem;">Priority Breakdown</h3>
+              <div class="priority-cards-grid" style="display: flex; flex-direction: column; gap: 1rem;">
+                
+                <div class="priority-breakdown-card">
+                  <div class="priority-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span class="badge priority-high-badge" style="font-size: 0.65rem;">High</span>
+                    <span class="priority-counts-text" id="high-priority-counts" style="font-size: 0.8rem; font-weight: 700;">0 / 0</span>
+                  </div>
+                  <div class="progress-container" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 100px; overflow:hidden;">
+                    <div class="progress-bar" id="high-priority-progress" style="width: 0%; height: 100%; background: var(--color-red); border-radius: 100px; transition: width 0.5s ease;"></div>
+                  </div>
+                </div>
+
+                <div class="priority-breakdown-card">
+                  <div class="priority-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span class="badge priority-medium-badge" style="font-size: 0.65rem;">Medium</span>
+                    <span class="priority-counts-text" id="med-priority-counts" style="font-size: 0.8rem; font-weight: 700;">0 / 0</span>
+                  </div>
+                  <div class="progress-container" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 100px; overflow:hidden;">
+                    <div class="progress-bar" id="med-priority-progress" style="width: 0%; height: 100%; background: var(--color-orange); border-radius: 100px; transition: width 0.5s ease;"></div>
+                  </div>
+                </div>
+
+                <div class="priority-breakdown-card">
+                  <div class="priority-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span class="badge priority-low-badge" style="font-size: 0.65rem;">Low</span>
+                    <span class="priority-counts-text" id="low-priority-counts" style="font-size: 0.8rem; font-weight: 700;">0 / 0</span>
+                  </div>
+                  <div class="progress-container" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 100px; overflow:hidden;">
+                    <div class="progress-bar" id="low-priority-progress" style="width: 0%; height: 100%; background: var(--color-blue); border-radius: 100px; transition: width 0.5s ease;"></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- C) REPORT CARDS ROW -->
+          <section class="productivity-report-section" aria-labelledby="report-heading" style="margin-top: 2rem; padding-top: 0; border-top: none;">
+            <div class="report-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+              
+              <!-- Daily Report Card -->
+              <div class="report-card card-glass" id="report-daily" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <h3 class="report-card-title" style="font-size: 1.1rem; font-weight: 700;">Daily Performance</h3>
+                <p class="report-stats-raw" style="font-size: 0.85rem; color: var(--text-secondary);">Completed today: <span id="daily-completed-count" style="color: var(--primary-accent); font-weight: 700;">0</span> / Added: <span id="daily-added-count">0</span></p>
+                <div class="progress-container" style="background: rgba(255, 255, 255, 0.05); border-radius: 100px; height: 8px; overflow: hidden; width: 100%;">
+                  <div class="progress-bar" id="daily-progress-bar" style="background: var(--primary-accent); height: 100%; width: 0%; border-radius: 100px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 0 8px var(--primary-accent-glow);"></div>
+                </div>
+                <div class="report-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
+                  <span class="percentage" id="daily-percentage" style="font-size: 1.5rem; font-weight: 800; font-family: monospace;">0%</span>
+                  <span class="status-badge status-needswork" id="daily-status">Needs Work</span>
+                </div>
+              </div>
+
+              <!-- Weekly Report Card -->
+              <div class="report-card card-glass" id="report-weekly" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <h3 class="report-card-title" style="font-size: 1.1rem; font-weight: 700;">Weekly Performance</h3>
+                <p class="report-stats-raw" style="font-size: 0.85rem; color: var(--text-secondary);">Completed this week: <span id="weekly-completed-count" style="color: var(--primary-accent); font-weight: 700;">0</span> / Added: <span id="weekly-added-count">0</span></p>
+                <div class="progress-container" style="background: rgba(255, 255, 255, 0.05); border-radius: 100px; height: 8px; overflow: hidden; width: 100%;">
+                  <div class="progress-bar" id="weekly-progress-bar" style="background: var(--primary-accent); height: 100%; width: 0%; border-radius: 100px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 0 8px var(--primary-accent-glow);"></div>
+                </div>
+                <div class="report-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
+                  <span class="percentage" id="weekly-percentage" style="font-size: 1.5rem; font-weight: 800; font-family: monospace;">0%</span>
+                  <span class="status-badge status-needswork" id="weekly-status">Needs Work</span>
+                </div>
+              </div>
+
+              <!-- Monthly Report Card -->
+              <div class="report-card card-glass" id="report-monthly" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <h3 class="report-card-title" style="font-size: 1.1rem; font-weight: 700;">Monthly Performance</h3>
+                <p class="report-stats-raw" style="font-size: 0.85rem; color: var(--text-secondary);">Completed this month: <span id="monthly-completed-count" style="color: var(--primary-accent); font-weight: 700;">0</span> / Added: <span id="monthly-added-count">0</span></p>
+                <div class="progress-container" style="background: rgba(255, 255, 255, 0.05); border-radius: 100px; height: 8px; overflow: hidden; width: 100%;">
+                  <div class="progress-bar" id="monthly-progress-bar" style="background: var(--primary-accent); height: 100%; width: 0%; border-radius: 100px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 0 8px var(--primary-accent-glow);"></div>
+                </div>
+                <div class="report-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
+                  <span class="percentage" id="monthly-percentage" style="font-size: 1.5rem; font-weight: 800; font-family: monospace;">0%</span>
+                  <span class="status-badge status-needswork" id="monthly-status">Needs Work</span>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- AI Assistant Collapsible Panel (Floating bottom-right) -->
+    <div class="ai-chat-drawer" id="ai-chat-drawer">
+      <button class="chat-toggle-btn" id="chat-toggle-btn" aria-expanded="false" aria-controls="ai-chat-body">
+        <div class="chat-status-glow"></div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 2C6.47715 2 2 6.47715 2 12C2 13.9213 2.54411 15.7157 3.4878 17.2348L2.0543 21.2863C1.9442 21.5976 2.0232 21.9446 2.2576 22.179C2.492 22.4134 2.839 22.4924 3.1503 22.3823L7.2018 20.9488C8.7209 21.8925 10.5153 22.4366 12 22.4366C17.5228 22.4366 22 17.9595 22 12.4366C22 6.91379 17.5228 2 12 2Z"
+            fill="currentColor" />
+          <path d="M7 10H17M7 14H14" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <span>CrunchTime AI Assistant</span>
+        <span class="unread-badge hidden" id="chat-unread-badge">1</span>
+        <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <div class="chat-content" id="ai-chat-body">
+        <div class="chat-messages" id="chat-messages">
+          <div class="message incoming">
+            <div class="msg-avatar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+                  fill="currentColor" />
+              </svg>
+            </div>
+            <div class="msg-bubble">
+              <p>Hello! I am your <strong>CrunchTime AI Assistant</strong>. ⚡</p>
+              <p>I can help you prioritize tasks, draft action plans, or handle procrastination.</p>
+              <div class="suggestion-pills">
+                <button class="suggest-pill"
+                  data-prompt="How do I avoid procrastination when working on high priority tasks?">Avoid
+                  Procrastination</button>
+                <button class="suggest-pill"
+                  data-prompt="Give me a quick 25-minute Pomodoro plan to start work immediately.">25-min Pomodoro
+                  Plan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form class="chat-input-area" id="chat-input-form">
+          <input type="text" id="chat-input" placeholder="Ask AI for productivity strategies..." autocomplete="off">
+          <button type="submit" class="btn-chat-send" aria-label="Send Message">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Firebase SDK & config are handled inside app.js module -->
+
+  <!-- Custom Dialog overlays -->
+  <div id="custom-confirm-overlay" class="custom-confirm-overlay hidden">
+    <div class="custom-confirm-box card-glass">
+      <h3 id="confirm-title">Are you sure?</h3>
+      <p id="confirm-message"></p>
+      <div class="confirm-actions">
+        <button id="confirm-cancel-btn" class="btn-card">Cancel</button>
+        <button id="confirm-ok-btn" class="btn-primary" style="width:auto; padding: 0.6rem 1.5rem;">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="custom-input-overlay" class="custom-confirm-overlay hidden">
+    <div class="custom-confirm-box card-glass">
+      <h3 id="input-modal-title">Create New Section</h3>
+      <p id="input-modal-desc" style="color: var(--text-secondary); font-size: 0.85rem;">
+        Give your custom section a name.
+      </p>
+      <input 
+        type="text" 
+        id="input-modal-field" 
+        placeholder="e.g. Work, College, Personal..." 
+        maxlength="40"
+        style="margin-top: 0.5rem;"
+      />
+      <div class="confirm-actions">
+        <button id="input-modal-cancel" class="btn-card">Cancel</button>
+        <button id="input-modal-ok" class="btn-primary" style="width: auto; padding: 0.6rem 1.5rem;">Create Section</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+
+</html>
