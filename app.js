@@ -12,7 +12,7 @@ const googleProvider = new GoogleAuthProvider();
 // Safe fallback resolution for the Gemini API Key
 const ACTIVE_GEMINI_KEY = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY && !GEMINI_API_KEY.includes("MOCK")) 
   ? GEMINI_API_KEY 
-  : "YOUR_ACTUAL_GEMINI_KEY_HERE"; // 🔑 You can paste your real key string here directly if imports fail!
+  : "AQ.Ab8RN6LKNJOWxp6xVxC5sHOVaEAaHQoJs12C9qIXCWJqP8b1Qg"; // 🔑 You can paste your real key string here directly if imports fail!
 
 /**
  * CRUNCHTIME - CORE APPLICATION LOGIC
