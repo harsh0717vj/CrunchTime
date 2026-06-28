@@ -121,10 +121,9 @@ function initTasks() {
   }
 }
 
-// AFTER
 function saveToLocalStorage() {
   localStorage.setItem("crunchtime_tasks", JSON.stringify(tasks));
-  syncTasksToFirebase(); // now safe — errors are caught inside
+  syncTasksToFirebase(); 
 }
 
 async function syncTasksToFirebase() {
@@ -184,21 +183,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showCustomConfirm(title, message, onConfirm) {
-    const overlay = document.getElementById(
-      "custom-confirm-overlay"
-    );
-    const titleEl = document.getElementById(
-      "confirm-title"
-    );
-    const messageEl = document.getElementById(
-      "confirm-message"
-    );
-    const okBtn = document.getElementById(
-      "confirm-ok-btn"
-    );
-    const cancelBtn = document.getElementById(
-      "confirm-cancel-btn"
-    );
+    const overlay = document.getElementById("custom-confirm-overlay");
+    const titleEl = document.getElementById("confirm-title");
+    const messageEl = document.getElementById("confirm-message");
+    const okBtn = document.getElementById("confirm-ok-btn");
+    const cancelBtn = document.getElementById("confirm-cancel-btn");
 
     if (!overlay) return;
 
@@ -209,18 +198,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const handleOk = () => {
       overlay.classList.add("hidden");
       okBtn.removeEventListener("click", handleOk);
-      cancelBtn.removeEventListener(
-        "click", handleCancel
-      );
+      cancelBtn.removeEventListener("click", handleCancel);
       onConfirm();
     };
 
     const handleCancel = () => {
       overlay.classList.add("hidden");
       okBtn.removeEventListener("click", handleOk);
-      cancelBtn.removeEventListener(
-        "click", handleCancel
-      );
+      cancelBtn.removeEventListener("click", handleCancel);
     };
 
     okBtn.addEventListener("click", handleOk);
@@ -312,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskNoDeadline = document.getElementById("task-no-deadline");
   const deadlineInputRow = document.getElementById("deadline-input-row");
 
-  let activeFilter = "all"; // all | active | completed | today
+  let activeFilter = "all"; 
   let unreadCount = 0;
 
   // Set default minimum date-time for deadline picker to today/now
@@ -336,12 +321,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const select = document.getElementById("task-section");
     if (!select) return;
     
-    // Clear custom options (keep first option: "Automatic (By Deadline)")
     while (select.options.length > 1) {
       select.remove(1);
     }
     
-    // Append custom sections
     customSections.forEach(section => {
       const opt = document.createElement("option");
       opt.value = section.id;
@@ -368,17 +351,13 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(() => {
     updateSystemClock();
     updateCountdownTickers();
-    // Periodically update statistics (needed if a task deadline passes silently)
     updateStats();
   }, 1000);
 
-  // System time initial call
   updateSystemClock();
 
-  // Stat Cards List for Clickable Filters
   const statCardsList = [totalStatEl, completedStatEl, urgentStatEl, overdueStatEl].map(el => el ? el.closest(".stat-card") : null);
 
-  // Helper to set filter state programmatically
   function setFilter(filterName) {
     activeFilter = filterName;
     sidebarItems.forEach(item => {
@@ -391,14 +370,12 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTasks();
   }
 
-  // Collapsible Sidebar Desktop Toggle
   if (sidebarToggle && pageSidebar) {
     sidebarToggle.addEventListener("click", () => {
       pageSidebar.classList.toggle("sidebar-collapsed");
     });
   }
 
-  // Mobile Sidebar Toggles
   if (mobileMenuBtn && pageSidebar && sidebarBackdrop) {
     mobileMenuBtn.addEventListener("click", () => {
       pageSidebar.classList.add("open");
@@ -410,7 +387,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // No Deadline Checkbox change listener
   if (taskNoDeadline && deadlineInputRow) {
     taskNoDeadline.addEventListener("change", () => {
       if (taskNoDeadline.checked) {
@@ -418,7 +394,6 @@ document.addEventListener("DOMContentLoaded", () => {
         taskDeadlineInput.value = "";
       } else {
         deadlineInputRow.classList.remove("hidden");
-        // Re-establish min date-time
         const reMinDateTime = new Date();
         reMinDateTime.setMinutes(reMinDateTime.getMinutes() - reMinDateTime.getTimezoneOffset());
         taskDeadlineInput.min = reMinDateTime.toISOString().slice(0, 16);
@@ -426,18 +401,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Section group headers expand/collapse toggles via event delegation
   if (tasksContainer) {
     tasksContainer.addEventListener("click", (e) => {
       const header = e.target.closest(".section-group-header");
       if (header) {
-        // Ignore click if it's on the add-section or delete-section button
         if (e.target.closest(".btn-add-section-inline") || e.target.closest(".btn-delete-section-inline")) return;
         const section = header.closest(".task-section");
         if (section) {
           section.classList.toggle("collapsed");
           
-          // Only scroll if we are expanding not collapsing
           if (!section.classList.contains("collapsed")) {
             setTimeout(() => {
               section.scrollIntoView({
@@ -452,8 +424,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.addEventListener("click", (e) => {
-    // Only the main + button (next to "Live Operations" title)
-    // should create a new custom section
     const mainAddBtn = e.target.closest(".btn-add-section");
     if (mainAddBtn) {
       e.preventDefault();
@@ -469,88 +439,60 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // The inline + button inside each section header
-    // should scroll to the form and pre-select that section
     const inlineAddBtn = e.target.closest(".btn-add-section-inline");
     if (inlineAddBtn) {
       e.preventDefault();
       e.stopPropagation();
 
-      // Find which section this + button belongs to
       const sectionEl = inlineAddBtn.closest(".task-section");
-      let sectionId = "auto";
-      let sectionLabel = "Automatic (By Deadline)";
-
       if (sectionEl) {
         const sectionIdAttr = sectionEl.id;
 
         if (sectionIdAttr === "section-today") {
-          // For Today — set deadline to end of today
           const endOfToday = new Date();
           endOfToday.setHours(23, 59, 0, 0);
-          const localISO = new Date(
-            endOfToday.getTime() - 
-            endOfToday.getTimezoneOffset() * 60000
-          ).toISOString().slice(0, 16);
-
+          const localISO = new Date(endOfToday.getTime() - endOfToday.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
           const deadlineInput = document.getElementById("task-deadline");
           const noDeadlineCheck = document.getElementById("task-no-deadline");
           const deadlineRow = document.getElementById("deadline-input-row");
-
           if (noDeadlineCheck) noDeadlineCheck.checked = false;
           if (deadlineRow) deadlineRow.classList.remove("hidden");
           if (deadlineInput) deadlineInput.value = localISO;
-
           const sectionSelect = document.getElementById("task-section");
           if (sectionSelect) sectionSelect.value = "auto";
 
         } else if (sectionIdAttr === "section-upcoming") {
-          // For Upcoming — set deadline to tomorrow
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
           tomorrow.setHours(12, 0, 0, 0);
-          const localISO = new Date(
-            tomorrow.getTime() - 
-            tomorrow.getTimezoneOffset() * 60000
-          ).toISOString().slice(0, 16);
-
+          const localISO = new Date(tomorrow.getTime() - tomorrow.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
           const deadlineInput = document.getElementById("task-deadline");
           const noDeadlineCheck = document.getElementById("task-no-deadline");
           const deadlineRow = document.getElementById("deadline-input-row");
-
           if (noDeadlineCheck) noDeadlineCheck.checked = false;
           if (deadlineRow) deadlineRow.classList.remove("hidden");
           if (deadlineInput) deadlineInput.value = localISO;
-
           const sectionSelect = document.getElementById("task-section");
           if (sectionSelect) sectionSelect.value = "auto";
 
         } else if (sectionIdAttr === "section-someday") {
-          // For No Deadline — check the no deadline checkbox
           const noDeadlineCheck = document.getElementById("task-no-deadline");
           const deadlineRow = document.getElementById("deadline-input-row");
           const deadlineInput = document.getElementById("task-deadline");
-
           if (noDeadlineCheck) noDeadlineCheck.checked = true;
           if (deadlineRow) deadlineRow.classList.add("hidden");
           if (deadlineInput) deadlineInput.value = "";
-
           const sectionSelect = document.getElementById("task-section");
           if (sectionSelect) sectionSelect.value = "auto";
 
         } else if (sectionIdAttr === "section-completed") {
-          // Completed section — just scroll to form, no preset
           const sectionSelect = document.getElementById("task-section");
           if (sectionSelect) sectionSelect.value = "auto";
 
         } else if (sectionIdAttr && sectionIdAttr.startsWith("section-custom-")) {
-          // Custom section — pre-select it in the dropdown
           const customId = sectionIdAttr.replace("section-custom-", "");
           const sectionSelect = document.getElementById("task-section");
-          if (sectionSelect) {
-            sectionSelect.value = customId;
-          }
-
+          if (sectionSelect) sectionSelect.value = customId;
           const noDeadlineCheck = document.getElementById("task-no-deadline");
           const deadlineRow = document.getElementById("deadline-input-row");
           if (noDeadlineCheck) noDeadlineCheck.checked = true;
@@ -558,7 +500,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Scroll to the Add Task form and focus task name
       const formSection = document.querySelector(".form-section");
       if (formSection) {
         formSection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -570,32 +511,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle Custom Section Deletion clicks
   document.addEventListener("click", (e) => {
-    const btn = e.target.closest(
-      ".btn-delete-section-inline"
-    );
+    const btn = e.target.closest(".btn-delete-section-inline");
     if (!btn) return;
     e.preventDefault();
     e.stopPropagation();
     
     const sectionId = btn.getAttribute("data-id");
-    console.log("Delete clicked for:", sectionId);
-    console.log("Custom sections:", customSections);
+    if (!sectionId) return;
     
-    if (!sectionId) {
-      console.error("No section ID found on button");
-      return;
-    }
-    
-    const section = customSections.find(
-      s => s.id === sectionId
-    );
-    
-    if (!section) {
-      console.error("Section not found:", sectionId);
-      return;
-    }
+    const section = customSections.find(s => s.id === sectionId);
+    if (!section) return;
 
     showCustomConfirm(
       `Delete "${section.name}"?`,
@@ -607,9 +533,7 @@ document.addEventListener("DOMContentLoaded", () => {
             t.deadline = null;
           }
         });
-        customSections = customSections.filter(
-          s => s.id !== sectionId
-        );
+        customSections = customSections.filter(s => s.id !== sectionId);
         saveToLocalStorage();
         saveCustomSections();
         updateSectionDropdown();
@@ -619,10 +543,8 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   });
 
-  // Sidebar Navigation click handler
   sidebarItems.forEach(item => {
     item.addEventListener("click", (e) => {
-      // Clear stat card active classes and container focuses when manual tabs are clicked
       statCardsList.forEach(c => c && c.classList.remove("active"));
       tasksContainer.classList.remove("focus-completed", "focus-urgent", "focus-overdue");
 
@@ -630,7 +552,6 @@ document.addEventListener("DOMContentLoaded", () => {
       item.classList.add("active");
       activeFilter = item.getAttribute("data-filter");
       
-      // Automatically expand their sections if selected
       if (activeFilter === "today") {
         const sectionToday = document.getElementById("section-today");
         if (sectionToday) sectionToday.classList.remove("collapsed");
@@ -641,9 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       renderTasks();
 
-      if (activeFilter === "all") {
-        scrollToSection("section-today");
-      } else if (activeFilter === "active") {
+      if (activeFilter === "all" || activeFilter === "active") {
         scrollToSection("section-today");
       } else if (activeFilter === "completed") {
         scrollToSection("section-completed");
@@ -651,7 +570,6 @@ document.addEventListener("DOMContentLoaded", () => {
         scrollToSection("section-today");
       }
 
-      // Close mobile drawer if open
       if (window.innerWidth <= 768 && pageSidebar && sidebarBackdrop) {
         pageSidebar.classList.remove("open");
         sidebarBackdrop.classList.remove("active");
@@ -659,33 +577,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Clickable Stat Card Filters handlers
   statCardsList.forEach(card => {
     if (!card) return;
     card.addEventListener("click", () => {
       const isAlreadyActive = card.classList.contains("active");
-
-      // Reset all stat cards active states
       statCardsList.forEach(c => c && c.classList.remove("active"));
-      
-      // Reset all highlights on the tasks container
       tasksContainer.classList.remove("focus-completed", "focus-urgent", "focus-overdue");
 
-      // Clicking the same stat card again deselects it and removes all highlights
-      if (isAlreadyActive) {
-        return;
-      }
+      if (isAlreadyActive) return;
 
-      // 1. Clicking "Total Tasks" shows all tasks, removes any highlight
       if (card.id === "stat-total") {
         card.classList.add("active");
         setFilter("all");
       } else {
-        // For other cards, first set filter to "all" to ensure all cards are rendered
         setFilter("all");
         card.classList.add("active");
 
-        // 2-4. Highlight matching cards with CSS classes
         if (card.id === "stat-completed") {
           tasksContainer.classList.add("focus-completed");
           const secCompleted = document.getElementById("section-completed");
@@ -703,23 +610,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      if (card.id === "stat-total") {
+      if (card.id === "stat-total" || card.id === "stat-urgent" || card.id === "stat-overdue") {
         scrollToSection("section-today");
       } else if (card.id === "stat-completed") {
         scrollToSection("section-completed");
-      } else if (card.id === "stat-urgent") {
-        scrollToSection("section-today");
-      } else if (card.id === "stat-overdue") {
-        scrollToSection("section-today");
       }
     });
   });
 
-  // Task Form submit
   addTaskForm.addEventListener("submit", (e) => {
     e.preventDefault();
     
-    // Validate
     let isValid = true;
     const name = taskNameInput.value.trim();
     const desc = taskDescInput.value.trim();
@@ -728,7 +629,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const noDeadline = taskNoDeadline && taskNoDeadline.checked;
     const sectionVal = document.getElementById("task-section") ? document.getElementById("task-section").value : "auto";
     
-    // Clear errors
     document.getElementById("name-error").style.display = "none";
     document.getElementById("deadline-error").style.display = "none";
     taskNameInput.parentElement.classList.remove("has-error");
@@ -759,7 +659,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (!isValid) return;
 
-    // Create task
     const newTask = {
       id: "task-" + Date.now(),
       name,
@@ -774,24 +673,20 @@ document.addEventListener("DOMContentLoaded", () => {
     tasks.unshift(newTask);
     saveToLocalStorage();
     
-    // Rerender and Reset
     renderTasks();
     updateStats();
     updateProductivityReport();
     addTaskForm.reset();
 
-    // Ensure deadline row is visible after reset
     if (deadlineInputRow) {
       deadlineInputRow.classList.remove("hidden");
     }
     
-    // Set minimal date again
     const reMinDateTime = new Date();
     reMinDateTime.setMinutes(reMinDateTime.getMinutes() - reMinDateTime.getTimezoneOffset());
     taskDeadlineInput.min = reMinDateTime.toISOString().slice(0, 16);
   });
 
-  // Task Actions Event Delegation
   tasksContainer.addEventListener("click", (e) => {
     const btn = e.target.closest("button");
     if (!btn) return;
@@ -804,7 +699,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const task = tasks[taskIndex];
 
     if (btn.classList.contains("btn-complete")) {
-      // Toggle complete status
       task.completed = !task.completed;
       if (task.completed) {
         task.completedAt = new Date().toISOString();
@@ -816,7 +710,6 @@ document.addEventListener("DOMContentLoaded", () => {
       updateStats();
       updateProductivityReport();
     } else if (btn.classList.contains("btn-delete")) {
-      // Delete task
       showCustomConfirm(
         "Delete Task?",
         `Remove "${task.name}" from operations?`,
@@ -829,12 +722,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
     } else if (btn.classList.contains("btn-ai-help")) {
-      // Get AI assistance
       requestAIHelpForTask(task);
     }
   });
 
-  // AI Chat Panel - Toggle Expand
   chatToggleBtn.addEventListener("click", () => {
     const isExpanded = chatDrawer.classList.toggle("is-expanded");
     chatToggleBtn.setAttribute("aria-expanded", isExpanded);
@@ -847,7 +738,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // AI Chat Panel - Send custom messages
   chatInputForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const query = chatInput.value.trim();
@@ -860,7 +750,6 @@ document.addEventListener("DOMContentLoaded", () => {
     simulateAIResponse(query);
   });
 
-  // AI Chat Panel - Click suggestion pills
   chatMessages.addEventListener("click", (e) => {
     const pill = e.target.closest(".suggest-pill");
     if (!pill) return;
@@ -871,7 +760,6 @@ document.addEventListener("DOMContentLoaded", () => {
       simulateAIResponse(prompt);
     }
   });
-
 
   // ==========================================
   // 3. CORE LOGIC & RENDER FUNCTIONS
@@ -1024,7 +912,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Dynamic Quote Injection
     const centerEl = banner.querySelector(".streak-center");
     if (centerEl) {
       let quoteEl = document.getElementById("streak-quote");
@@ -1055,18 +942,15 @@ document.addEventListener("DOMContentLoaded", () => {
       updateStreakBanner();
     }
 
-    // Always update productivity streak and breakdown in the background
     updateStreakChart();
     updatePriorityBreakdown();
 
     if (activeFilter === "productivity") {
-      // Refresh reports/stats and return since tasks home grid is hidden
       updateProductivityReport();
       updateStats();
       return;
     }
 
-    // Categorize tasks
     const startOfToday = new Date();
     startOfToday.setHours(0,0,0,0);
     const endOfToday = new Date();
@@ -1077,7 +961,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const somedayTasks = [];
     const completedTasks = [];
 
-    // Custom section task containers
     const customSectionTasks = {};
     customSections.forEach(sec => {
       customSectionTasks[sec.id] = [];
@@ -1089,11 +972,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Check if task is assigned to a valid custom section
       if (task.section && task.section !== "auto" && customSectionTasks[task.section]) {
         customSectionTasks[task.section].push(task);
       } else {
-        // Automatic grouping
         if (!task.deadline) {
           somedayTasks.push(task);
         } else {
@@ -1107,7 +988,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Sort arrays by priority weight
     const priorityWeight = { high: 3, medium: 2, low: 1 };
     const sortByPriority = (a, b) => priorityWeight[b.priority] - priorityWeight[a.priority];
 
@@ -1121,7 +1001,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return priorityWeight[b.priority] - priorityWeight[a.priority];
     });
 
-    // Update section header badges
     const todayBadge = document.querySelector("#section-today .count-badge");
     const upcomingBadge = document.querySelector("#section-upcoming .count-badge");
     const somedayBadge = document.querySelector("#section-someday .count-badge");
@@ -1132,13 +1011,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (somedayBadge) somedayBadge.textContent = somedayTasks.length;
     if (completedBadge) completedBadge.textContent = completedTasks.length;
 
-    // Toggle Section visibility based on the active sidebar filter
     const sectionToday = document.getElementById("section-today");
     const sectionUpcoming = document.getElementById("section-upcoming");
     const sectionSomeday = document.getElementById("section-someday");
     const sectionCompleted = document.getElementById("section-completed");
 
-    // Remove focused-section class from all sections first
     tasksContainer.querySelectorAll(".task-section").forEach(sec => {
       sec.classList.remove("focused-section");
     });
@@ -1181,11 +1058,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Remove any dynamically added custom section elements first
     const existingCustomSections = tasksContainer.querySelectorAll(".task-section-custom");
     existingCustomSections.forEach(el => el.remove());
 
-    // Render custom sections dynamically before `#section-completed`
     const showCustomSections = (activeFilter === "all" || activeFilter === "active");
 
     customSections.forEach(section => {
@@ -1228,7 +1103,6 @@ document.addEventListener("DOMContentLoaded", () => {
         tasksContainer.appendChild(secEl);
       }
 
-      // Sort and render custom section task cards
       tasksForSec.sort(sortByPriority);
       const wrapper = secEl.querySelector(".section-cards-wrapper");
       tasksForSec.forEach(task => {
@@ -1236,7 +1110,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Empty default card wrappers
     const todayCardsWrapper = document.querySelector("#section-today .section-cards-wrapper");
     const upcomingCardsWrapper = document.querySelector("#section-upcoming .section-cards-wrapper");
     const somedayCardsWrapper = document.querySelector("#section-someday .section-cards-wrapper");
@@ -1247,7 +1120,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (somedayCardsWrapper) somedayCardsWrapper.innerHTML = "";
     if (completedCardsWrapper) completedCardsWrapper.innerHTML = "";
 
-    // Append cards to respective wrappers
     todayTasks.forEach(task => {
       if (todayCardsWrapper) todayCardsWrapper.appendChild(createTaskCardDOM(task));
     });
@@ -1261,7 +1133,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (completedCardsWrapper) completedCardsWrapper.appendChild(createTaskCardDOM(task));
     });
 
-    // Check empty state across visible sections
     let totalVisibleTasks = 0;
     if (activeFilter === "all") {
       totalVisibleTasks = todayTasks.length + upcomingTasks.length + somedayTasks.length + completedTasks.length;
@@ -1314,12 +1185,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (task.completed) {
       div.classList.add("is-completed");
     } else {
-      if (isOverdue) {
-        div.classList.add("is-overdue");
-      }
-      if (isUrgent) {
-        div.classList.add("is-urgent");
-      }
+      if (isOverdue) div.classList.add("is-overdue");
+      if (isUrgent) div.classList.add("is-urgent");
     }
 
     const priorityLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
@@ -1473,7 +1340,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (urgentStatEl) urgentStatEl.textContent = urgent;
     if (overdueStatEl) overdueStatEl.textContent = overdue;
 
-    // Update replicated stats in Productivity View
     const prodTotalEl = document.getElementById("prod-stat-count-total");
     const prodCompletedEl = document.getElementById("prod-stat-count-completed");
     const prodUrgentEl = document.getElementById("prod-stat-count-urgent");
@@ -1484,14 +1350,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (prodUrgentEl) prodUrgentEl.textContent = urgent;
     if (prodOverdueEl) prodOverdueEl.textContent = overdue;
 
-    // Run streak calculations and update the streak banner
     calculateStreak();
     updateStreakBanner();
   }
 
-
   // ==========================================
-  // 4. AI CHAT ASSISTANT SIMULATION
+  // 4. AI CHAT ASSISTANT SIMULATION INTERFACE
   // ==========================================
 
   function requestAIHelpForTask(task) {
@@ -1581,9 +1445,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }).catch(err => {
       hideTypingIndicator();
-      appendChatMessage("incoming", 
-        "Sorry, I had a small hiccup. Please try again!"
-      );
+      appendChatMessage("incoming", "Sorry, I had trouble communicating with the AI platform. Please check your setup.");
       scrollToBottom();
     });
   }
@@ -1600,38 +1462,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function formatMarkdown(text) {
     let html = escapeHTML(text);
-    
     html = html.replace(/\*\*(.*?)\*\//g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
     html = html.replace(/^-\s+(.*?)$/gm, '• $1');
     html = html.replace(/\n/g, '<br>');
-    
     return html;
   }
 
-  // 6. Productivity Report Renderer
   function updateProductivityReport() {
     const now = new Date();
 
-    // 1. Setup Time Windows in Local Time
-    // Today (Midnight to Midnight)
     const startOfToday = new Date(now);
     startOfToday.setHours(0,0,0,0);
     const endOfToday = new Date(now);
     endOfToday.setHours(23,59,59,999);
 
-    // This Week (Sunday Midnight to Saturday 11:59:59 PM)
     const startOfWeek = new Date(now);
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
     startOfWeek.setHours(0,0,0,0);
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(endOfWeek.getDate() + 7);
 
-    // This Month (1st 00:00 to Last Day 23:59:59)
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-    // Date checker helpers
     const isToday = (dateStr) => {
       if (!dateStr) return false;
       const d = new Date(dateStr);
@@ -1650,7 +1504,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return d >= startOfMonth && d <= endOfMonth;
     };
 
-    // 2. Count Added and Completed Tasks
     const dailyAdded = tasks.filter(t => isToday(t.createdAt)).length;
     const dailyCompleted = tasks.filter(t => t.completed && isToday(t.completedAt)).length;
 
@@ -1660,7 +1513,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const monthlyAdded = tasks.filter(t => isThisMonth(t.createdAt)).length;
     const monthlyCompleted = tasks.filter(t => t.completed && isThisMonth(t.completedAt)).length;
 
-    // 3. Helper to update card DOM
     const updateCard = (cardId, completed, added) => {
       const cards = document.querySelectorAll(`#${cardId}, #prod-${cardId}`);
       cards.forEach(card => {
@@ -1673,21 +1525,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (compCountEl) compCountEl.textContent = completed;
         if (addCountEl) addCountEl.textContent = added;
 
-        // Productivity percentage = completed/added * 100
         let pct = 0;
         if (added > 0) {
           pct = Math.round((completed / added) * 100);
         } else if (completed > 0) {
-          pct = 100; // If completed > 0 and added == 0, consider it 100% velocity
+          pct = 100; 
         }
 
         const pctClamped = Math.min(100, pct);
         if (pctEl) pctEl.textContent = `${pct}%`;
         if (barEl) barEl.style.width = `${pctClamped}%`;
 
-        // Status labels: Excellent (>80%), Good (>50%), Needs Work (<=50%)
         if (statusEl) {
-          statusEl.className = "status-badge"; // Reset classes
+          statusEl.className = "status-badge"; 
           if (pct > 80) {
             statusEl.textContent = "Excellent";
             statusEl.classList.add("status-excellent");
@@ -1701,7 +1551,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Update circular indicators in collapsed mode
       let prefix = "";
       if (cardId === "report-daily") prefix = "daily";
       if (cardId === "report-weekly") prefix = "weekly";
@@ -1720,12 +1569,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const pctClamped = Math.min(100, pct);
 
-        if (circleBar) {
-          circleBar.setAttribute("stroke-dasharray", `${pctClamped}, 100`);
-        }
-        if (circlePct) {
-          circlePct.textContent = `${pct}%`;
-        }
+        if (circleBar) circleBar.setAttribute("stroke-dasharray", `${pctClamped}, 100`);
+        if (circlePct) circlePct.textContent = `${pct}%`;
         if (circleWrapper) {
           const capitalized = prefix.charAt(0).toUpperCase() + prefix.slice(1);
           circleWrapper.setAttribute("title", `${capitalized} Performance: ${completed}/${added} completed (${pct}%)`);
@@ -1733,13 +1578,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    // 4. Update Daily, Weekly, Monthly Cards
     updateCard("report-daily", dailyCompleted, dailyAdded);
     updateCard("report-weekly", weeklyCompleted, weeklyAdded);
     updateCard("report-monthly", monthlyCompleted, monthlyAdded);
   }
 
-  // 8. 7-Day Streak chart in Productivity View
   function updateStreakChart() {
     const chartContainer = document.getElementById("streak-bar-chart");
     if (!chartContainer) return;
@@ -1749,7 +1592,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const now = new Date();
 
-    // Last 7 days ending today
     const completionsCount = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
@@ -1808,7 +1650,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 9. Priority breakdown card in Productivity View
   function updatePriorityBreakdown() {
     const priorities = ["high", "medium", "low"];
     priorities.forEach(p => {
@@ -1821,10 +1662,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const countEl = document.getElementById(`${elementPrefix}-priority-counts`);
       const progressEl = document.getElementById(`${elementPrefix}-priority-progress`);
 
-      if (countEl) {
-        countEl.textContent = `${completed} / ${total}`;
-      }
-
+      if (countEl) countEl.textContent = `${completed} / ${total}`;
       if (progressEl) {
         const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
         progressEl.style.width = `${pct}%`;
@@ -1837,13 +1675,10 @@ document.addEventListener("DOMContentLoaded", () => {
   window.updateProductivityReport = updateProductivityReport;
 });
 
-
 // ==========================================
-// 5. INTEGRATION PLACEHOLDERS (TODOs)
+// 5. CLOUD SECURITY INTEGRATION CORRIDORS
 // ==========================================
 
-// SIGN IN WITH GOOGLE
-// SIGN IN WITH GOOGLE
 async function signInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
@@ -1854,7 +1689,6 @@ async function signInWithGoogle() {
   }
 }
 
-// SIGN OUT
 async function signOutUser() {
   try {
     await signOut(auth);
@@ -1864,7 +1698,6 @@ async function signOutUser() {
   }
 }
 
-// WATCH AUTH STATE
 onAuthStateChanged(auth, async (user) => {
   const loginScreen = document.getElementById("login-screen");
   const userProfile = document.getElementById("user-profile");
@@ -1888,24 +1721,19 @@ onAuthStateChanged(auth, async (user) => {
 async function loadTasksFromFirebase(userId) {
   try {
     console.log("Loading tasks from Firestore...");
-
     const tasksColRef = collection(db, "users", userId, "tasks");
     const snapshot = await getDocs(tasksColRef);
 
     if (!snapshot.empty) {
       tasks = snapshot.docs.map(doc => doc.data());
       console.log("✓ Loaded", tasks.length, "tasks from Firestore");
-      localStorage.setItem(
-        "crunchtime_tasks", JSON.stringify(tasks)
-      );
+      localStorage.setItem("crunchtime_tasks", JSON.stringify(tasks));
     } else {
       const stored = localStorage.getItem("crunchtime_tasks");
       if (stored) {
         try {
           tasks = JSON.parse(stored);
-          console.log(
-            "✓ Loaded", tasks.length, "tasks from localStorage"
-          );
+          console.log("✓ Loaded", tasks.length, "tasks from localStorage");
           await syncTasksToFirebase();
         } catch (e) {
           tasks = [];
@@ -1915,21 +1743,16 @@ async function loadTasksFromFirebase(userId) {
       }
     }
 
-    // Wait for DOM to be ready before rendering
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => {
         if (typeof renderTasks === "function") renderTasks();
         if (typeof updateStats === "function") updateStats();
-        if (typeof updateProductivityReport === "function") {
-          updateProductivityReport();
-        }
+        if (typeof updateProductivityReport === "function") updateProductivityReport();
       });
     } else {
       if (typeof renderTasks === "function") renderTasks();
       if (typeof updateStats === "function") updateStats();
-      if (typeof updateProductivityReport === "function") {
-        updateProductivityReport();
-      }
+      if (typeof updateProductivityReport === "function") updateProductivityReport();
     }
 
   } catch (err) {
@@ -1977,45 +1800,12 @@ Respond with exactly this structure:
 Available actions: ADD_TASK, COMPLETE_TASK, DELETE_TASK, SUGGEST_FOCUS, BREAKDOWN_TASK, SHOW_TASKS, PRODUCTIVITY_REPORT, CHAT
 `;
 
- async function fetchGeminiAIHelp(prompt, task = null) {
-  const tasksSummary = tasks.map(t => ({
-    id: t.id,
-    name: t.name,
-    priority: t.priority,
-    deadline: t.deadline,
-    completed: t.completed,
-    description: t.description || ""
-  }));
-
-  const now = new Date();
-  const systemPrompt = `
-You are CrunchTime AI — an agentic task management assistant.
-Current date and time: ${now.toISOString()}
-
-The user has these tasks currently:
-${JSON.stringify(tasksSummary, null, 2)}
-
-You must analyze the user message and return a JSON response.
-Return ONLY valid JSON. No markdown. No explanation. No code blocks.
-
-Respond with exactly this structure:
-{
-  "action": "ACTION_NAME",
-  "data": {},
-  "message": "Friendly confirmation message to show user"
-}
-
-Available actions: ADD_TASK, COMPLETE_TASK, DELETE_TASK, SUGGEST_FOCUS, BREAKDOWN_TASK, SHOW_TASKS, PRODUCTIVITY_REPORT, CHAT
-`;
-
   try {
-    // 1. Properly define finalPrompt so it doesn't throw a ReferenceError
     let finalPrompt = prompt;
     if (task) {
       finalPrompt = `Context: This query is related to the task: "${task.name}" (Priority: ${task.priority}, Deadline: ${task.deadline || "No Deadline"}).\n\nUser Message: ${prompt}`;
     }
 
-    // 2. Clean URL endpoint — keys are passed securely via standard headers instead
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, {
       method: "POST",
       headers: { 
@@ -2040,7 +1830,6 @@ Available actions: ADD_TASK, COMPLETE_TASK, DELETE_TASK, SUGGEST_FOCUS, BREAKDOW
       cleanText = cleanText.replace(/^```json\s*/i, "").replace(/```\s*$/s, "").trim();
     }
 
-    // Extract JSON object if there's any surrounding conversational text
     const firstBrace = cleanText.indexOf("{");
     const lastBrace = cleanText.lastIndexOf("}");
     if (firstBrace !== -1 && lastBrace !== -1) {
@@ -2058,6 +1847,7 @@ Available actions: ADD_TASK, COMPLETE_TASK, DELETE_TASK, SUGGEST_FOCUS, BREAKDOW
     return "Sorry, I had trouble communicating with the AI platform. Please check your setup.";
   }
 }
+
 async function executeAgentAction(parsed, originalPrompt) {
   const action = parsed.action;
   const data = parsed.data;
@@ -2077,9 +1867,9 @@ async function executeAgentAction(parsed, originalPrompt) {
 
     tasks.unshift(newTask);
     saveToLocalStorage();
-    renderTasks();
-    updateStats();
-    updateProductivityReport();
+    if (typeof renderTasks === "function") renderTasks();
+    if (typeof updateStats === "function") updateStats();
+    if (typeof updateProductivityReport === "function") updateProductivityReport();
 
     return `✅ **Task Created!**\n\n**${newTask.name}**\nPriority: ${newTask.priority}\nDeadline: ${newTask.deadline ? new Date(newTask.deadline).toLocaleString() : "No Deadline"}\n\n${message}`;
   }
@@ -2090,9 +1880,9 @@ async function executeAgentAction(parsed, originalPrompt) {
       tasks[taskIndex].completed = true;
       tasks[taskIndex].completedAt = new Date().toISOString();
       saveToLocalStorage();
-      renderTasks();
-      updateStats();
-      updateProductivityReport();
+      if (typeof renderTasks === "function") renderTasks();
+      if (typeof updateStats === "function") updateStats();
+      if (typeof updateProductivityReport === "function") updateProductivityReport();
       return `✅ **Marked Complete!**\n\n"${tasks[taskIndex].name}" is done. Great work! 🎉\n\n${message}`;
     }
     return `❌ Could not find that task. Try being more specific about the task name.`;
@@ -2104,8 +1894,8 @@ async function executeAgentAction(parsed, originalPrompt) {
       const taskName = tasks[taskIndex].name;
       tasks.splice(taskIndex, 1);
       saveToLocalStorage();
-      renderTasks();
-      updateStats();
+      if (typeof renderTasks === "function") renderTasks();
+      if (typeof updateStats === "function") updateStats();
       return `🗑️ **Deleted!**\n\n"${taskName}" has been removed.\n\n${message}`;
     }
     return `❌ Could not find that task to delete.`;
@@ -2120,16 +1910,12 @@ async function executeAgentAction(parsed, originalPrompt) {
   if (action === "BREAKDOWN_TASK") {
     const targetTask = tasks.find(t => t.id === data.taskId);
     const taskName = targetTask ? targetTask.name : "your task";
-    const steps = (data.steps || [])
-      .map((s, i) => `${i + 1}. ${s}`)
-      .join("\n");
+    const steps = (data.steps || []).map((s, i) => `${i + 1}. ${s}`).join("\n");
     return `📋 **Action Plan: ${taskName}**\n\n${steps}\n\n${message}`;
   }
 
   if (action === "SHOW_TASKS") {
-    const taskList = (data.tasks || [])
-      .map(t => `• **${t.name}** (${t.priority}) — ${t.deadline}`)
-      .join("\n");
+    const taskList = (data.tasks || []).map(t => `• **${t.name}** (${t.priority}) — ${t.deadline}`).join("\n");
     return `📌 **${data.filter} Tasks:**\n\n${taskList || "No tasks found."}\n\n${message}`;
   }
 
@@ -2143,15 +1929,3 @@ async function executeAgentAction(parsed, originalPrompt) {
 
   return message;
 }
-// ✅ URL stays clean, key is securely passed in the headers dictionary
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, {
-  method: "POST",
-  headers: { 
-    "Content-Type": "application/json",
-    "x-goog-api-key": GEMINI_API_KEY // 🔑 Fixed: No quotes! Pulls the variable from config.js
-  },
-  body: JSON.stringify({
-    contents: [{ parts: [{ text: finalPrompt }] }],
-    systemInstruction: { parts: [{ text: systemPrompt }] }
-  })
-});
