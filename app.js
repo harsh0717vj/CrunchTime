@@ -8,12 +8,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
-
-// Safe fallback resolution for the Gemini API Key
-const ACTIVE_GEMINI_KEY = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY && !GEMINI_API_KEY.includes("MOCK")) 
-  ? GEMINI_API_KEY 
-  : "AQ.Ab8RN6LKNJOWxp6xVxC5sHOVaEAaHQoJs12C9qIXCWJqP8b1Qg"; // 🔑 You can paste your real key string here directly if imports fail!
-
+const ACTIVE_GEMINI_KEY = localStorage.getItem("crunchtime_gemini_key") || "MOCK_KEY";
 /**
  * CRUNCHTIME - CORE APPLICATION LOGIC
  * Includes: Task Management, Tickers, Statistics, Form Validation, AI Chat Simulator,
