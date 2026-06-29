@@ -1,54 +1,148 @@
-# ⏳ CrunchTime — Agentic Task Management Dashboard
+# ⚡ CrunchTime — Beat Every Deadline
 
-CrunchTime is an advanced, production-ready task management environment built for the **Vibe2Ship Hackathon**. It features secure individual user state tracking, instant client-side rendering, and a custom direct network pipeline to a **Gemini 2.5 Flash** AI assistant that acts as an active workspace agent—breaking down complex goals, predicting workloads, and dynamically modifying core dashboard states.
+> AI-powered productivity companion that helps you 
+> plan, prioritize and crush tasks before deadlines hit.
 
----
-
-## 🚀 Interactive Feature Walkthrough
-
-<details open>
-<summary><b>🔐 Authentication & Database Layer</b></summary>
-<br>
-
-* **Secure OAuth Pipeline:** Integrated with Firebase Auth to provide seamless single-click Google Sign-In popups.
-* **Live State Persistence:** Connected directly to a Google Cloud Firestore backend. Changes automatically push to a dedicated user collection using atomic `writeBatch` transactions.
-* **Offline Resiliency:** Implemented localized fail-safes that dynamically switch back to local storage structures if the cloud synchronization layer experiences structural network drops.
-</details>
-
-<details>
-<summary><b>🤖 Agentic AI Assistant Drawer</b></summary>
-<br>
-
-* **Native Network Bridge:** Bypasses bloated client libraries by leveraging an optimized, secure asynchronous HTTP `fetch` routine directly targeting the Google AI Studio Gateway.
-* **Contextual Awareness:** The application automatically serializes your current active task matrices and injects them alongside live system clock markers directly into the execution context.
-* **Automated Action Interceptor:** The AI doesn't just talk; it thinks in raw execution objects. It analyzes casual user messages, determines complex goals, and executes automated dashboard operations (`ADD_TASK`, `COMPLETE_TASK`, `DELETE_TASK`, `SUGGEST_FOCUS`, `BREAKDOWN_TASK`).
-</details>
-
-<details>
-<summary><b>📊 Production Analytics & UI Architecture</b></summary>
-<br>
-
-* **Dynamic Ticker Loops:** JavaScript background engines calculate exact rolling deadlines, triggering dynamic styling re-assignments (`is-urgent`, `is-overdue`) in real-time.
-* **Analytical Metrics:** Features real-time priority distribution breakdowns, continuous productivity metric trackers, and a custom canvas-rendered 7-day completion velocity chart.
-</details>
+![CrunchTime](https://img.shields.io/badge/CrunchTime-Beat%20Every%20Deadline-e63946?style=for-the-badge&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![Gemini AI](https://img.shields.io/badge/Gemini%20AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
 ---
 
-## 🛠️ System Architecture & Tech Stack
-
-| Layer | Technology Implemented | Purpose |
-| :--- | :--- | :--- |
-| **Frontend Core** | HTML5, CSS3 Variables, ES6 JavaScript Modules | Delivers a clean, modular, zero-dependency environment. |
-| **Cloud Engine** | Firebase App Core, Auth Module, Cloud Firestore | Manages state sync and authentication layers. |
-| **Cognitive AI** | Google AI Studio (Gemini 2.5 Flash API) | Drives agentic decision pipelines and automation trees. |
+## 🔗 Live Demo
+**[Try CrunchTime Live](https://harsh0717vj.github.io/CrunchTime)**
 
 ---
 
-## 🔧 Local Workspace Setup Instructions
+## 🎯 What is CrunchTime?
 
-Follow these manual steps to evaluate or execute the project locally on your machine:
+CrunchTime is an intelligent productivity companion 
+built for students, professionals and entrepreneurs 
+who struggle with deadlines. Unlike traditional 
+to-do apps, CrunchTime features a fully agentic AI 
+assistant that understands natural language and 
+directly manages your tasks without any form input.
 
-1. **Clone the Repository:**
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/CrunchTime.git](https://github.com/YOUR_USERNAME/CrunchTime.git)
-   cd CrunchTime
+---
+
+## ✨ Key Features
+
+### 🤖 Agentic AI Assistant
+- `"add task submit assignment tomorrow high priority"` → Task created instantly
+- `"mark presentation complete"` → Task marked done
+- `"what should I focus on first?"` → AI picks most urgent task
+- `"break down my project"` → Step-by-step action plan
+- `"how am I doing today?"` → Live productivity report
+- `"I am feeling overwhelmed"` → Personalized motivation
+
+### 📋 Smart Task Sections
+- **Today's Missions** — Tasks due today
+- **Upcoming** — Tasks due in next 7 days
+- **No Deadline Tasks** — Someday items
+- **Custom Sections** — Create your own
+- **Live Countdown Timers** — Real-time tickers
+- **Priority Levels** — High, Medium, Low
+
+### 🔥 Streak System
+- Daily streak with animated CSS flame
+- Best streak record
+- 30 daily motivational quotes
+- Dynamic messages based on streak
+
+### 📊 Productivity Analytics
+- 7-Day completion bar chart
+- Daily, Weekly, Monthly reports
+- Priority breakdown
+- Real-time stats dashboard
+
+### 🔐 Secure & Personal
+- Google Sign In via Firebase Auth
+- Tasks saved to Firebase Firestore
+- Cross-device sync
+
+---
+
+## 🛠️ Tech Stack
+
+| Technology | Purpose |
+|-----------|---------|
+| HTML + CSS + JavaScript | Frontend |
+| Firebase Auth | Google Sign In |
+| Firebase Firestore | Database |
+| Gemini 2.0 Flash | Agentic AI |
+| Google AI Studio | Deployment |
+| Google Antigravity | Development IDE |
+
+---
+
+## 🚀 Getting Started
+
+**Step 1 — Clone the repository**
+```bash
+git clone https://github.com/harsh0717vj/CrunchTime.git
+cd CrunchTime
+```
+
+**Step 2 — Add Firebase Config**
+
+In `app.js` replace the firebaseConfig values:
+```javascript
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+```
+
+**Step 3 — Add Gemini API Key**
+
+In `app.js` find and replace:
+```javascript
+const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
+```
+
+**Step 4 — Open in browser**
+
+Open `index.html` in your browser and sign in!
+
+---
+
+## 🤖 AI Commands
+
+| Command | Action |
+|---------|--------|
+| `add task [name] today high priority` | Creates task |
+| `mark [task name] complete` | Marks done |
+| `what should I focus on first?` | Focus suggestion |
+| `how am I doing today?` | Productivity report |
+| `break down my [task]` | Step-by-step plan |
+| `show my urgent tasks` | Lists urgent tasks |
+| `give me a pomodoro plan` | Focus session |
+| `I am feeling overwhelmed` | Motivation advice |
+
+---
+
+## 🏆 Built For
+
+**Vibe2Ship Hackathon** — Coding Ninjas × Google for Developers
+Problem Statement: **The Last-Minute Life Saver**
+
+---
+
+## 👨‍💻 Developer
+
+**Harsh Vardhan**
+3rd Year CSE — Asansol Engineering College
+
+[![GitHub](https://img.shields.io/badge/GitHub-harsh0717vj-181717?style=flat&logo=github)](https://github.com/harsh0717vj)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Harsh%20Vardhan-0077B5?style=flat&logo=linkedin)](https://linkedin.com/in/harsh-vardhan-b6a912325)
+
+---
+
+<div align="center">
+<strong>⚡ Built with urgency. Powered by AI. Made to beat every deadline.</strong>
+</div>
