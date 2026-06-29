@@ -76,40 +76,7 @@ directly manages your tasks without any form input.
 
 ---
 
-## 🚀 Getting Started
 
-**Step 1 — Clone the repository**
-```bash
-git clone https://github.com/harsh0717vj/CrunchTime.git
-cd CrunchTime
-```
-
-**Step 2 — Add Firebase Config**
-
-In `app.js` replace the firebaseConfig values:
-```javascript
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-```
-
-**Step 3 — Add Gemini API Key**
-
-In `app.js` find and replace:
-```javascript
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
-```
-
-**Step 4 — Open in browser**
-
-Open `index.html` in your browser and sign in!
-
----
 
 ## 🤖 AI Commands
 
